@@ -176,10 +176,16 @@ async def test_live_agent_takeover_and_gdpr_export_erase():
         assert esc["status"] == "waiting_for_agent"
         assert "office@bacciorganics.com" in esc["reply_message"]["content"]
 
-        # Silvia Ragucci takes over the conversation live
+        # Unauthenticated admin attempt must be rejected with 401
+        unauth_admin = await client.get("/api/admin/conversations")
+        assert unauth_admin.status_code == 401
+
+        # Silvia Ragucci takes over the conversation live (with Basic Auth)
+        admin_auth = ("yukies", "yukies-wien-2026")
         takeover = await client.post(
             f"/api/admin/conversations/{conv_id}/takeover",
             json={"agent_name": "Silvia Ragucci"},
+            auth=admin_auth,
         )
         assert takeover.status_code == 200
         assert takeover.json()["status"] == "agent_active"
@@ -191,16 +197,17 @@ async def test_live_agent_takeover_and_gdpr_export_erase():
                 "agent_name": "Silvia Ragucci",
                 "content": "Hallo Lisa, hier ist Silvia. Wir senden dir sofort Ersatz zu.",
             },
+            auth=admin_auth,
         )
         assert agent_msg.status_code == 200
         assert agent_msg.json()["message"]["sender_type"] == "human_agent"
 
         # GDPR Export (Art. 15)
-        exp = await client.get(f"/api/admin/gdpr/export/{user_id}")
+        exp = await client.get(f"/api/admin/gdpr/export/{user_id}", auth=admin_auth)
         assert exp.status_code == 200
         assert exp.json()["user_profile"]["user_id"] == user_id
 
         # GDPR Erase (Art. 17)
-        erased = await client.delete(f"/api/admin/gdpr/erase/{user_id}")
+        erased = await client.delete(f"/api/admin/gdpr/erase/{user_id}", auth=admin_auth)
         assert erased.status_code == 200
         assert erased.json()["erased"] is True

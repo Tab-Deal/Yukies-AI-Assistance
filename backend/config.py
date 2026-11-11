@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
 
     # Admin Security
+    ADMIN_USERNAME: str = "yukies"
+    ADMIN_PASSWORD: str = "yukies-wien-2026"
     ADMIN_API_KEY: str = "yukies-admin-secret-2026"
 
     @property

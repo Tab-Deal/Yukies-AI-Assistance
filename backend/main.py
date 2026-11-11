@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
+import secrets
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -26,9 +28,55 @@ from backend.services.handoff_service import handoff_notifier, ws_manager
 from backend.services.shopify_client import shopify_client
 
 
+security = HTTPBasic(auto_error=False)
+
+
+def require_admin(
+    request: Request,
+    credentials: HTTPBasicCredentials | None = Depends(security),
+) -> str:
+    """Authenticates admin requests via X-Admin-Key or HTTP Basic Auth."""
+    # 1. Allow X-Admin-Key header for scripts and automation
+    api_key_header = request.headers.get("x-admin-key")
+    if api_key_header and secrets.compare_digest(api_key_header, settings.ADMIN_API_KEY):
+        return "api_key_admin"
+
+    # 3. HTTP Basic Auth for browsers (Silvia & Barbara)
+    if credentials:
+        is_user_ok = secrets.compare_digest(credentials.username, settings.ADMIN_USERNAME)
+        is_pass_ok = secrets.compare_digest(credentials.password, settings.ADMIN_PASSWORD)
+        if is_user_ok and is_pass_ok:
+            return credentials.username
+
+    raise HTTPException(
+        status_code=401,
+        detail="Admin authentication required",
+        headers={"WWW-Authenticate": 'Basic realm="YUKIES Vienna Admin"'},
+    )
+
+
+async def prune_expired_gdpr_data(db: AsyncSession) -> int:
+    """Automatically purge user data and conversations older than 180 days (Austrian DSG / EU GDPR Art. 17)."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=settings.DATA_RETENTION_DAYS)
+    stmt = select(User).where(User.updated_at < cutoff)
+    old_users = (await db.execute(stmt)).scalars().all()
+    count = len(old_users)
+    for u in old_users:
+        await db.delete(u)
+    if count > 0:
+        await db.commit()
+    return count
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     await init_db()
+    async for db in get_db():
+        try:
+            await prune_expired_gdpr_data(db)
+        except Exception:
+            pass
+        break
     yield
 
 
@@ -458,7 +506,9 @@ async def send_customer_message(
 
 
 @app.get("/api/admin/conversations")
-async def admin_list_conversations(db: AsyncSession = Depends(get_db)):
+async def admin_list_conversations(
+    _admin: str = Depends(require_admin), db: AsyncSession = Depends(get_db)
+):
     stmt = (
         select(Conversation)
         .options(selectinload(Conversation.user), selectinload(Conversation.messages))
@@ -496,7 +546,9 @@ async def admin_list_conversations(db: AsyncSession = Depends(get_db)):
 
 @app.get("/api/admin/conversations/{conversation_id}")
 async def admin_get_conversation_detail(
-    conversation_id: str, db: AsyncSession = Depends(get_db)
+    conversation_id: str,
+    _admin: str = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(Conversation)
@@ -549,6 +601,7 @@ async def admin_get_conversation_detail(
 async def admin_takeover_conversation(
     conversation_id: str,
     payload: AgentTakeoverRequest,
+    _admin: str = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = (
@@ -618,6 +671,7 @@ async def admin_takeover_conversation(
 async def admin_send_live_message(
     conversation_id: str,
     payload: AgentMessageRequest,
+    _admin: str = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = select(Conversation).where(Conversation.id == conversation_id)
@@ -665,7 +719,9 @@ async def admin_send_live_message(
 
 @app.post("/api/admin/conversations/{conversation_id}/return-to-ai")
 async def admin_return_to_ai(
-    conversation_id: str, db: AsyncSession = Depends(get_db)
+    conversation_id: str,
+    _admin: str = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = select(Conversation).where(Conversation.id == conversation_id)
     conv = (await db.execute(stmt)).scalar_one_or_none()
@@ -703,7 +759,9 @@ async def admin_return_to_ai(
 
 @app.get("/api/admin/gdpr/export/{user_id}")
 async def gdpr_export_user_data(
-    user_id: str, db: AsyncSession = Depends(get_db)
+    user_id: str,
+    _admin: str = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(User)
@@ -778,7 +836,9 @@ async def gdpr_export_user_data(
 
 @app.delete("/api/admin/gdpr/erase/{user_id}")
 async def gdpr_erase_user_data(
-    user_id: str, db: AsyncSession = Depends(get_db)
+    user_id: str,
+    _admin: str = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = select(User).where(User.id == user_id)
     user = (await db.execute(stmt)).scalar_one_or_none()
@@ -804,6 +864,20 @@ async def gdpr_erase_user_data(
         "erased": True,
         "user_id": user_id,
         "message": "Alle personenbezogenen Daten und Chatverläufe dieser User-ID wurden gemäß DSGVO / österreichischem DSG vollständig gelöscht.",
+    }
+
+
+@app.post("/api/admin/gdpr/prune")
+async def gdpr_prune_expired_records(
+    _admin: str = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    pruned_count = await prune_expired_gdpr_data(db)
+    return {
+        "status": "success",
+        "retention_period_days": settings.DATA_RETENTION_DAYS,
+        "pruned_users_count": pruned_count,
+        "message": f"{pruned_count} Datensätze älter als {settings.DATA_RETENTION_DAYS} Tage wurden gemäß DSGVO gelöscht.",
     }
 
 
@@ -844,7 +918,7 @@ async def serve_widget_js():
 
 
 @app.get("/admin")
-async def serve_admin_panel():
+async def serve_admin_panel(_admin: str = Depends(require_admin)):
     admin_path = settings.BASE_DIR / "frontend" / "admin" / "index.html"
     return FileResponse(admin_path, media_type="text/html")
 
