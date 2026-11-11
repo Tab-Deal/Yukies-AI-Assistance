@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     # Google Gemini Cloud API
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_MODEL: str = "gemini-3-flash-preview"
     GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
     GCP_PROJECT_ID: str = "yukies-ai-assistance"
     GCP_LOCATION: str = "europe-west3"

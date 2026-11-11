@@ -1,13 +1,13 @@
 /**
  * YUKIES AI Shopping Companion & Support Widget
  * Built with Web Components (Shadow DOM) for zero CSS conflict on Shopify Dawn 7.0 (yukies.at).
- * Strict Guardrails: Read-Only Advisor, Zero Emojis, Mandatory Guest Name+Email+DSG/GDPR Consent.
+ * Supports both floating mode (production storefront) and inline docked mode (sandbox testing).
  */
 
 const UI_STRINGS = {
   de: {
     brandSubtitle: "Naturkosmetik Manufaktur Wien",
-    statusAi: "Beratungs-Assistent aktiv",
+    statusAi: "KI-Beratung aktiv (Gemini)",
     statusWaiting: "An unser Team übergeben (Antwort innerhalb von 4 Std.)",
     statusAgent: "Verbunden mit",
     prechatTitle: "Willkommen bei YUKIES",
@@ -25,7 +25,7 @@ const UI_STRINGS = {
     viewProductBtn: "Produkt im Shop ansehen",
     inStock: "Vorrätig",
     outOfStock: "Aktuell ausverkauft",
-    loggedInBadge: "Eingeloggt als",
+    loggedInBadge: "Kundin:",
     quickPrompts: [
       "Welche Pflege empfiehlst du für die Schwangerschaft?",
       "Warum ist mein Sugar Scrub braun geworden?",
@@ -35,7 +35,7 @@ const UI_STRINGS = {
   },
   en: {
     brandSubtitle: "Natural Cosmetics Manufactory Vienna",
-    statusAi: "Shopping Advisor active",
+    statusAi: "AI Shopping Advisor active (Gemini)",
     statusWaiting: "Forwarded to our team (Reply within 4 hours)",
     statusAgent: "Connected with",
     prechatTitle: "Welcome to YUKIES",
@@ -53,7 +53,7 @@ const UI_STRINGS = {
     viewProductBtn: "View Product in Shop",
     inStock: "In Stock",
     outOfStock: "Out of Stock",
-    loggedInBadge: "Logged in as",
+    loggedInBadge: "Customer:",
     quickPrompts: [
       "What do you recommend during pregnancy?",
       "Why did my Sugar Scrub turn brown?",
@@ -63,7 +63,7 @@ const UI_STRINGS = {
   },
   fr: {
     brandSubtitle: "Manufacture de Cosmétiques Naturels Vienne",
-    statusAi: "Conseiller actif",
+    statusAi: "Conseiller IA actif",
     statusWaiting: "Transmis à notre équipe (Réponse sous 4h)",
     statusAgent: "En ligne avec",
     prechatTitle: "Bienvenue chez YUKIES",
@@ -81,7 +81,7 @@ const UI_STRINGS = {
     viewProductBtn: "Voir le produit",
     inStock: "En stock",
     outOfStock: "Épuisé",
-    loggedInBadge: "Connecté :",
+    loggedInBadge: "Cliente :",
     quickPrompts: [
       "Quels produits pour la grossesse ?",
       "Quels soins pour bébé dès la naissance ?",
@@ -89,7 +89,7 @@ const UI_STRINGS = {
   },
   it: {
     brandSubtitle: "Manifattura Cosmetica Naturale Vienna",
-    statusAi: "Assistente attivo",
+    statusAi: "Assistente IA attivo",
     statusWaiting: "Inoltrato al nostro team (Risposta entro 4 ore)",
     statusAgent: "In chat con",
     prechatTitle: "Benvenuta da YUKIES",
@@ -107,7 +107,7 @@ const UI_STRINGS = {
     viewProductBtn: "Vedi prodotto nello shop",
     inStock: "Disponibile",
     outOfStock: "Esaurito",
-    loggedInBadge: "Accesso effettuato:",
+    loggedInBadge: "Cliente:",
     quickPrompts: [
       "Quali prodotti consigliate in gravidanza?",
       "Quali prodotti per neonati dalla nascita?",
@@ -120,7 +120,8 @@ class YukiesChatWidget extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this.apiBase = this.getAttribute("api-base") || window.location.origin;
-    this.isOpen = false;
+    this.isInline = this.getAttribute("mode") === "inline";
+    this.isOpen = this.isInline || this.getAttribute("default-open") === "true";
     this.lang = (window.YukiesCustomer && window.YukiesCustomer.locale) || "de";
     if (!UI_STRINGS[this.lang]) this.lang = "de";
 
@@ -130,16 +131,18 @@ class YukiesChatWidget extends HTMLElement {
   }
 
   connectedCallback() {
+    this.isInline = this.getAttribute("mode") === "inline";
+    this.isOpen = this.isInline || this.getAttribute("default-open") === "true";
     this.loadStoredGuestSession();
-    if (this.getAttribute("default-open") === "true") {
-      this.isOpen = true;
+    this.render();
+    this.bindEvents();
+    if (this.isOpen) {
       this.ensureSessionIfLoggedIn().then(() => {
         this.render();
         this.bindEvents();
+        this.scrollToBottom();
       });
     }
-    this.render();
-    this.bindEvents();
     window.addEventListener("yukies-customer-changed", () => {
       this.handleCustomerIdentityChange();
     });
@@ -148,14 +151,11 @@ class YukiesChatWidget extends HTMLElement {
   loadStoredGuestSession() {
     const cust = window.YukiesCustomer;
     if (cust && cust.id) {
-      // Logged-in Shopify customer takes precedence
       return;
     }
     try {
       const saved = localStorage.getItem("yukies_guest_session_v1");
-      if (saved) {
-        this.savedGuest = JSON.parse(saved);
-      }
+      this.savedGuest = saved ? JSON.parse(saved) : null;
     } catch (_) {
       this.savedGuest = null;
     }
@@ -173,9 +173,11 @@ class YukiesChatWidget extends HTMLElement {
     }
     this.render();
     this.bindEvents();
+    this.scrollToBottom();
   }
 
   async toggleOpen() {
+    if (this.isInline) return;
     this.isOpen = !this.isOpen;
     if (this.isOpen && !this.session) {
       await this.ensureSessionIfLoggedIn();
@@ -195,7 +197,11 @@ class YukiesChatWidget extends HTMLElement {
         gdpr_consent: true,
         language: this.lang,
       });
-    } else if (this.savedGuest && this.savedGuest.email && this.savedGuest.full_name) {
+    } else if (
+      this.savedGuest &&
+      this.savedGuest.email &&
+      this.savedGuest.full_name
+    ) {
       await this.initBackendSession({
         shopify_customer_id: null,
         full_name: this.savedGuest.full_name,
@@ -239,7 +245,9 @@ class YukiesChatWidget extends HTMLElement {
     }
     const wsProto = this.apiBase.startsWith("https") ? "wss" : "ws";
     const hostPart = this.apiBase.replace(/^https?:\/\//, "");
-    this.ws = new WebSocket(`${wsProto}://${hostPart}/ws/chat/${conversationId}`);
+    this.ws = new WebSocket(
+      `${wsProto}://${hostPart}/ws/chat/${conversationId}`
+    );
     this.ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -252,9 +260,12 @@ class YukiesChatWidget extends HTMLElement {
         }
         if (
           data.message &&
-          (data.event === "human_agent_message" || data.event === "agent_takeover")
+          (data.event === "human_agent_message" ||
+            data.event === "agent_takeover")
         ) {
-          const exists = this.session.messages.some((m) => m.id === data.message.id);
+          const exists = this.session.messages.some(
+            (m) => m.id === data.message.id
+          );
           if (!exists) {
             this.session.messages.push(data.message);
           }
@@ -273,7 +284,6 @@ class YukiesChatWidget extends HTMLElement {
     const cleanText = text.trim();
     this.isSending = true;
 
-    // Optimistic customer message display
     this.session.messages.push({
       id: "temp-" + Date.now(),
       sender_type: "customer",
@@ -301,7 +311,6 @@ class YukiesChatWidget extends HTMLElement {
         const data = await res.json();
         this.session.status = data.status;
         this.session.assigned_agent = data.assigned_agent;
-        // Replace optimistic message
         this.session.messages.pop();
         this.session.messages.push(data.customer_message);
         if (data.reply_message) {
@@ -364,8 +373,12 @@ class YukiesChatWidget extends HTMLElement {
                 <div class="yukies-product-cert">${this.escapeHtml(
                   p.certification || "YUKIES Wien"
                 )}</div>
-                <div class="yukies-product-title">${this.escapeHtml(p.title)}</div>
-                <div class="yukies-product-size">${this.escapeHtml(p.size)}</div>
+                <div class="yukies-product-title">${this.escapeHtml(
+                  p.title
+                )}</div>
+                <div class="yukies-product-size">${this.escapeHtml(
+                  p.size
+                )}</div>
               </div>
               <div class="yukies-product-price-box">
                 ${
@@ -375,7 +388,9 @@ class YukiesChatWidget extends HTMLElement {
                       )}</span>`
                     : ""
                 }
-                <span class="yukies-price-current">${this.escapeHtml(p.price)}</span>
+                <span class="yukies-price-current">${this.escapeHtml(
+                  p.price
+                )}</span>
                 <span class="yukies-stock-pill ${
                   p.available ? "in-stock" : "out-stock"
                 }">${p.available ? t.inStock : t.outOfStock}</span>
@@ -415,6 +430,7 @@ class YukiesChatWidget extends HTMLElement {
           --yk-agent-bg: #EEF4F0;
           font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           color: var(--yk-text);
+          display: block;
         }
 
         .yukies-launcher {
@@ -422,7 +438,7 @@ class YukiesChatWidget extends HTMLElement {
           bottom: 24px;
           right: 24px;
           z-index: 99999;
-          display: flex;
+          display: ${this.isInline ? "none" : "flex"};
           align-items: center;
           gap: 10px;
           background: var(--yk-primary);
@@ -432,14 +448,8 @@ class YukiesChatWidget extends HTMLElement {
           border-radius: 999px;
           cursor: pointer;
           box-shadow: 0 10px 30px rgba(46, 59, 50, 0.24);
-          transition: transform 0.2s ease, background 0.2s ease;
           font-size: 14px;
           font-weight: 500;
-          letter-spacing: 0.03em;
-        }
-        .yukies-launcher:hover {
-          background: var(--yk-primary-hover);
-          transform: translateY(-2px);
         }
         .yukies-launcher-dot {
           width: 8px;
@@ -449,33 +459,44 @@ class YukiesChatWidget extends HTMLElement {
         }
 
         .yukies-window {
-          position: fixed;
-          bottom: 88px;
-          right: 24px;
-          width: 400px;
-          max-width: calc(100vw - 32px);
-          height: 620px;
-          max-height: calc(100vh - 120px);
+          ${
+            this.isInline
+              ? `
+            position: relative;
+            width: 100%;
+            height: 600px;
+            display: flex;
+          `
+              : `
+            position: fixed;
+            bottom: 88px;
+            right: 24px;
+            width: 400px;
+            max-width: calc(100vw - 32px);
+            height: 620px;
+            max-height: calc(100vh - 120px);
+            display: ${this.isOpen ? "flex" : "none"};
+            z-index: 99999;
+          `
+          }
           background: var(--yk-bg);
           border: 1px solid var(--yk-border);
-          border-radius: 20px;
-          box-shadow: 0 20px 50px rgba(28, 33, 29, 0.18);
-          display: ${this.isOpen ? "flex" : "none"};
+          border-radius: 18px;
+          box-shadow: 0 14px 36px rgba(28, 33, 29, 0.12);
           flex-direction: column;
           overflow: hidden;
-          z-index: 99999;
         }
 
         .yukies-header {
           background: var(--yk-primary);
           color: #FAF7F2;
-          padding: 16px 18px;
+          padding: 15px 18px;
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
         .yukies-brand-title {
-          font-size: 16px;
+          font-size: 15.5px;
           font-weight: 600;
           letter-spacing: 0.08em;
           text-transform: uppercase;
@@ -505,6 +526,7 @@ class YukiesChatWidget extends HTMLElement {
           background: #FFFFFF;
         }
         .yukies-close-btn {
+          display: ${this.isInline ? "none" : "inline-block"};
           background: transparent;
           border: none;
           color: #FAF7F2;
@@ -512,16 +534,12 @@ class YukiesChatWidget extends HTMLElement {
           line-height: 1;
           cursor: pointer;
           padding: 4px 6px;
-          opacity: 0.85;
-        }
-        .yukies-close-btn:hover {
-          opacity: 1;
         }
 
         .yukies-user-bar {
           background: #F1ECE3;
           border-bottom: 1px solid var(--yk-border);
-          padding: 7px 16px;
+          padding: 8px 16px;
           font-size: 11.5px;
           color: var(--yk-muted);
           display: flex;
@@ -537,9 +555,8 @@ class YukiesChatWidget extends HTMLElement {
           color: var(--yk-primary);
         }
 
-        /* Pre-Chat Guest Form */
         .yukies-prechat {
-          padding: 24px 20px;
+          padding: 22px 20px;
           overflow-y: auto;
           flex: 1;
           display: flex;
@@ -553,19 +570,19 @@ class YukiesChatWidget extends HTMLElement {
           color: var(--yk-primary);
         }
         .yukies-prechat p {
-          margin: 0 0 18px 0;
+          margin: 0 0 16px 0;
           font-size: 13px;
           line-height: 1.5;
           color: var(--yk-muted);
         }
         .yukies-field {
-          margin-bottom: 14px;
+          margin-bottom: 12px;
         }
         .yukies-field label {
           display: block;
           font-size: 12px;
           font-weight: 500;
-          margin-bottom: 5px;
+          margin-bottom: 4px;
           color: var(--yk-text);
         }
         .yukies-field input[type="text"],
@@ -579,21 +596,14 @@ class YukiesChatWidget extends HTMLElement {
           font-size: 13.5px;
           outline: none;
         }
-        .yukies-field input:focus {
-          border-color: var(--yk-primary);
-        }
         .yukies-consent-box {
           display: flex;
           align-items: flex-start;
           gap: 9px;
-          margin: 12px 0 18px 0;
+          margin: 10px 0 16px 0;
           font-size: 11.5px;
           line-height: 1.45;
           color: var(--yk-muted);
-        }
-        .yukies-consent-box input {
-          margin-top: 2px;
-          accent-color: var(--yk-primary);
         }
         .yukies-submit-btn {
           width: 100%;
@@ -605,13 +615,8 @@ class YukiesChatWidget extends HTMLElement {
           font-size: 13.5px;
           font-weight: 500;
           cursor: pointer;
-          transition: background 0.2s;
-        }
-        .yukies-submit-btn:hover {
-          background: var(--yk-primary-hover);
         }
 
-        /* Messages Area */
         .yukies-messages {
           flex: 1;
           padding: 16px;
@@ -662,10 +667,8 @@ class YukiesChatWidget extends HTMLElement {
           color: var(--yk-muted);
           margin-bottom: 4px;
           text-transform: uppercase;
-          letter-spacing: 0.04em;
         }
 
-        /* Product Cards (Strictly Read-Only, No Cart Mutation) */
         .yukies-product-cards {
           display: flex;
           flex-direction: column;
@@ -687,7 +690,6 @@ class YukiesChatWidget extends HTMLElement {
         .yukies-product-cert {
           font-size: 10px;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
           color: #5C7463;
           font-weight: 600;
         }
@@ -744,10 +746,8 @@ class YukiesChatWidget extends HTMLElement {
           color: var(--yk-primary);
           text-decoration: none;
           border-bottom: 1px solid var(--yk-primary);
-          padding-bottom: 1px;
         }
 
-        /* Quick Prompts */
         .yukies-quick-list {
           display: flex;
           flex-wrap: wrap;
@@ -762,13 +762,11 @@ class YukiesChatWidget extends HTMLElement {
           font-size: 11.5px;
           color: var(--yk-primary);
           cursor: pointer;
-          transition: background 0.15s;
         }
         .yukies-quick-btn:hover {
           background: #EFEAE1;
         }
 
-        /* Input Footer */
         .yukies-footer {
           padding: 12px 14px;
           background: var(--yk-surface);
@@ -780,8 +778,8 @@ class YukiesChatWidget extends HTMLElement {
           flex: 1;
           border: 1px solid var(--yk-border);
           border-radius: 10px;
-          padding: 9px 12px;
-          font-size: 13px;
+          padding: 10px 12px;
+          font-size: 13.5px;
           outline: none;
           background: var(--yk-bg);
         }
@@ -793,29 +791,25 @@ class YukiesChatWidget extends HTMLElement {
           color: #FAF7F2;
           border: none;
           border-radius: 10px;
-          padding: 0 16px;
-          font-size: 12.5px;
+          padding: 0 18px;
+          font-size: 13px;
           font-weight: 500;
           cursor: pointer;
-        }
-        .yukies-send-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
         }
       </style>
 
       <div class="yukies-window" role="dialog" aria-label="YUKIES Kundenberatung">
         <div class="yukies-header">
           <div>
-            <div class="yukies-brand-title">YUKIES WIEN</div>
+            <div class="yukies-brand-title">YUKIES WIEN · KI-BERATUNG</div>
             <div class="yukies-brand-sub">${this.renderStatusBadge(t)}</div>
           </div>
           <div class="yukies-header-controls">
             <select class="yukies-lang-select" aria-label="Sprache wählen">
-              <option value="de" ${this.lang === "de" ? "selected" : ""}>DE (Phase 1)</option>
-              <option value="en" ${this.lang === "en" ? "selected" : ""}>EN (Phase 1)</option>
-              <option value="fr" ${this.lang === "fr" ? "selected" : ""}>FR (Phase 2)</option>
-              <option value="it" ${this.lang === "it" ? "selected" : ""}>IT (Phase 3)</option>
+              <option value="de" ${this.lang === "de" ? "selected" : ""}>DE</option>
+              <option value="en" ${this.lang === "en" ? "selected" : ""}>EN</option>
+              <option value="fr" ${this.lang === "fr" ? "selected" : ""}>FR</option>
+              <option value="it" ${this.lang === "it" ? "selected" : ""}>IT</option>
             </select>
             <button class="yukies-close-btn" title="Schließen">&times;</button>
           </div>
@@ -828,7 +822,7 @@ class YukiesChatWidget extends HTMLElement {
             <span>${t.loggedInBadge} <strong>${this.escapeHtml(
                 this.session.full_name
               )}</strong> (${this.escapeHtml(this.session.email)})</span>
-            <span class="yukies-user-id-tag" title="Österreichisches DSG / DSGVO User-ID">ID: ${this.escapeHtml(
+            <span class="yukies-user-id-tag">ID: ${this.escapeHtml(
               this.session.user_id.slice(0, 8)
             )}</span>
           </div>
@@ -871,7 +865,7 @@ class YukiesChatWidget extends HTMLElement {
 
             ${
               this.isSending
-                ? `<div class="yukies-msg system">YUKIES Assistent schreibt...</div>`
+                ? `<div class="yukies-msg system">YUKIES KI-Assistent antwortet...</div>`
                 : ""
             }
           </div>
@@ -910,7 +904,7 @@ class YukiesChatWidget extends HTMLElement {
             </div>
 
             <label class="yukies-consent-box">
-              <input type="checkbox" id="yk-guest-consent" required />
+              <input type="checkbox" id="yk-guest-consent" required checked />
               <span>${this.escapeHtml(t.consentLabel)}</span>
             </label>
 
@@ -956,7 +950,11 @@ class YukiesChatWidget extends HTMLElement {
         const nameEl = this.shadowRoot.getElementById("yk-guest-name");
         const emailEl = this.shadowRoot.getElementById("yk-guest-email");
         const consentEl = this.shadowRoot.getElementById("yk-guest-consent");
-        if (!nameEl.value.trim() || !emailEl.value.trim() || !consentEl.checked) {
+        if (
+          !nameEl.value.trim() ||
+          !emailEl.value.trim() ||
+          !consentEl.checked
+        ) {
           return;
         }
         await this.initBackendSession({
