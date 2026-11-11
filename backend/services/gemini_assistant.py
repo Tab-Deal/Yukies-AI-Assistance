@@ -138,6 +138,38 @@ class YukiesGeminiAssistant:
         if any(
             w in lower
             for w in [
+                "wie lange",
+                "how long",
+                "stored",
+                "gespeichert",
+                "speicherdauer",
+                "chat history",
+                "chatverlauf",
+                "dsgvo",
+                "gdpr",
+                "datenschutz",
+            ]
+        ) and any(
+            w in lower
+            for w in ["chat", "daten", "data", "history", "verlauf", "stored", "gespeichert", "dsgvo", "gdpr"]
+        ):
+            if language == "en":
+                return (
+                    "With your explicit consent at the start of the chat, your name, email address, and chat history are stored under a unique User ID in accordance with the EU GDPR and the Austrian Data Protection Act (DSG) for 6 months (180 days) and then automatically deleted. You can request immediate deletion or an export of your data at any time by contacting office@bacciorganics.com.",
+                    [],
+                    False,
+                    None,
+                )
+            return (
+                "Nach deiner ausdrücklichen Zustimmung zu Beginn des Chats werden dein Name, deine E-Mail-Adresse und der Gesprächsverlauf unter einer eindeutigen Benutzerkennung (User-ID) gemäß DSGVO und österreichischem DSG für 6 Monate (180 Tage) gespeichert und danach automatisch gelöscht. Du kannst jederzeit unter office@bacciorganics.com die sofortige Löschung oder einen Export deiner Daten anfordern.",
+                [],
+                False,
+                None,
+            )
+
+        if any(
+            w in lower
+            for w in [
                 "in den warenkorb",
                 "warenkorb legen",
                 "add to cart",

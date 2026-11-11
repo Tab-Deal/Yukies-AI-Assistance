@@ -193,6 +193,56 @@
       font-weight: 600;
       font-size: 13px;
     }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100000;
+    }
+    .modal-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 28px;
+      width: 420px;
+      max-width: 90vw;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-card h3 {
+      margin: 0 0 8px 0;
+      color: var(--primary);
+    }
+    .modal-card p {
+      margin: 0 0 16px 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .modal-field {
+      margin-bottom: 14px;
+    }
+    .modal-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .modal-field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
     .chat-column {
       position: sticky;
       top: 20px;
@@ -207,13 +257,16 @@
     <div class="sandbox-controls">
       <span>Besucher-Modus:</span>
       <button class="mode-btn" id="btn-guest" onclick="setVisitorMode('guest')">
-        Gast (Name + E-Mail Formular testen)
+        Als Gast testen (DSGVO Pre-Chat Formular)
+      </button>
+      <button class="mode-btn" id="btn-custom" onclick="openCustomLoginModal()">
+        + Eigenes Kundenkonto einloggen
       </button>
       <button class="mode-btn active" id="btn-anna" onclick="setVisitorMode('anna')">
-        Eingeloggt: Anna Müller (Bestellung #1042)
+        Eingeloggt: Anna Müller (#1042)
       </button>
       <button class="mode-btn" id="btn-sophie" onclick="setVisitorMode('sophie')">
-        Eingeloggt: Sophie Hofer (Bestellung #1048)
+        Eingeloggt: Sophie Hofer (#1048)
       </button>
       <a class="admin-link" href="/admin" target="_blank">
         Live-Chat Konsole (Silvia & Barbara) &nearr;
@@ -279,6 +332,27 @@
     </div>
   </main>
 
+  <div class="modal-overlay" id="custom-login-modal">
+    <div class="modal-card">
+      <h3>Shopify Kundenkonto-Login simulieren</h3>
+      <p>Gib deinen eigenen Namen und deine E-Mail-Adresse ein, um als eingeloggter Kunde mit dem YUKIES KI-Assistenten zu sprechen:</p>
+      <form id="custom-login-form" onsubmit="submitCustomLogin(event)">
+        <div class="modal-field">
+          <label for="custom-name">Vor- und Nachname</label>
+          <input type="text" id="custom-name" required placeholder="z. B. Mohammadreza Naeimi" />
+        </div>
+        <div class="modal-field">
+          <label for="custom-email">E-Mail-Adresse</label>
+          <input type="email" id="custom-email" required placeholder="z. B. m.naeimi@beispiel.at" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="mode-btn" style="color:var(--text); border-color:var(--border);" onclick="closeCustomLoginModal()">Abbrechen</button>
+          <button type="submit" class="mode-btn active" style="padding:8px 16px;">Als Kunde einloggen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // Default to logged-in test customer Anna Müller so the AI chat box is immediately ready to type in!
     // Click "Gast (Name + E-Mail Formular testen)" in the top bar anytime to test the Guest DSGVO pre-chat gate.
@@ -317,6 +391,38 @@
         };
         statusEl.textContent = 'Eingeloggt im Shopify-Konto: Sophie Hofer (sophie.hofer@example.at)';
       }
+      window.dispatchEvent(new CustomEvent('yukies-customer-changed'));
+    }
+
+    function openCustomLoginModal() {
+      document.getElementById('custom-login-modal').style.display = 'flex';
+    }
+
+    function closeCustomLoginModal() {
+      document.getElementById('custom-login-modal').style.display = 'none';
+    }
+
+    function submitCustomLogin(e) {
+      e.preventDefault();
+      const name = document.getElementById('custom-name').value.trim();
+      const email = document.getElementById('custom-email').value.trim();
+      if (!name || !email) return;
+
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      const btnCustom = document.getElementById('btn-custom');
+      btnCustom.classList.add('active');
+      btnCustom.textContent = `Eingeloggt: ${name}`;
+
+      window.YukiesCustomer = {
+        id: 'cust_custom_' + Date.now(),
+        email: email,
+        full_name: name,
+        locale: 'de'
+      };
+      document.getElementById('header-customer-status').textContent =
+        `Eingeloggt im Shopify-Konto: ${name} (${email})`;
+
+      closeCustomLoginModal();
       window.dispatchEvent(new CustomEvent('yukies-customer-changed'));
     }
 

@@ -18,7 +18,7 @@ const UI_STRINGS = {
     emailLabel: "E-Mail-Adresse *",
     emailPlaceholder: "maria@beispiel.at",
     consentLabel:
-      "Ich stimme zu, dass mein Name, meine E-Mail-Adresse und der Chatverlauf unter einer eindeutigen Kennung gemäß der Datenschutzerklärung (DSGVO & österreichisches DSG) gespeichert werden. *",
+      "Ich stimme zu, dass mein Name, meine E-Mail-Adresse und der Chatverlauf unter einer eindeutigen Kennung gemäß der Datenschutzerklärung (DSGVO & österreichisches DSG) für 6 Monate (180 Tage) gespeichert werden. *",
     startBtn: "Beratung starten",
     inputPlaceholder: "Deine Frage zu YUKIES Produkten, Anwendung oder Bestellung...",
     sendBtn: "Senden",
@@ -46,7 +46,7 @@ const UI_STRINGS = {
     emailLabel: "Email Address *",
     emailPlaceholder: "emma@example.com",
     consentLabel:
-      "I agree that my name, email address, and chat history are stored under a unique ID in accordance with the Privacy Policy (EU GDPR & Austrian DSG). *",
+      "I agree that my name, email address, and chat history are stored under a unique ID in accordance with the Privacy Policy (EU GDPR & Austrian DSG) for 6 months (180 days). *",
     startBtn: "Start Consultation",
     inputPlaceholder: "Ask about YUKIES products, application, or your order...",
     sendBtn: "Send",

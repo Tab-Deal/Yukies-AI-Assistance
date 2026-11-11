@@ -131,10 +131,10 @@ async def initialize_or_resume_session(
     is_shopify_login = bool(
         payload.shopify_customer_id and payload.shopify_customer_id.strip()
     )
-    if not is_shopify_login and not payload.gdpr_consent:
+    if not payload.gdpr_consent:
         raise HTTPException(
             status_code=400,
-            detail="Für Gäste ist die Zustimmung zur Datenschutzerklärung (DSGVO / DSG) erforderlich.",
+            detail="Vor Beginn des Chats ist die ausdrückliche Zustimmung zur 6-monatigen Datenspeicherung gemäß DSGVO / österreichischem DSG erforderlich.",
         )
 
     norm_email = str(payload.email).strip().lower()

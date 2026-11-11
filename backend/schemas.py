@@ -37,10 +37,10 @@ class SessionInitRequest(BaseModel):
     email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     gdpr_consent: bool = Field(
         default=True,
-        description="Mandatory consent under Austrian DSG & EU GDPR for guests",
+        description="Mandatory explicit consent under Austrian DSG & EU GDPR (6 months storage) before starting chat",
     )
     consent_text: str = Field(
-        default="Ich stimme der Speicherung meiner Daten (Name, E-Mail, Chatverlauf) gemäß der Datenschutzerklärung (DSGVO / österreichisches DSG) zu."
+        default="Ich stimme zu, dass mein Name, meine E-Mail-Adresse und der Chatverlauf unter einer eindeutigen Benutzerkennung (User-ID) gemäß DSGVO und österreichischem DSG für 6 Monate (180 Tage) gespeichert werden."
     )
     language: SupportedLanguage = "de"
     conversation_id: str | None = None

@@ -20,10 +20,10 @@ class Settings(BaseSettings):
     GCP_PROJECT_ID: str = "yukies-ai-assistance"
     GCP_LOCATION: str = "europe-west3"
 
-    # Database & GDPR Retention
+    # Database & GDPR Retention (6 Months = 180 Days per Austrian DSG / EU GDPR)
     DATABASE_URL: str = "sqlite+aiosqlite:///./yukies_assistant.db"
-    DATA_RETENTION_DAYS: int = 365
-    CONSENT_VERSION: str = "v1.1-AT-DSG-GDPR-2026-11"
+    DATA_RETENTION_DAYS: int = 180
+    CONSENT_VERSION: str = "v1.2-AT-DSG-6M-2026-11"
 
     # YUKIES Shopify Storefront (Dawn 7.0)
     STORE_NAME: str = "YUKIES"

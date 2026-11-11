@@ -42,3 +42,8 @@ Bis zum Mindesthaltbarkeitsdatum auf der Packung, auch nach dem Öffnen. Bitte v
 
 **Wo kann ich Yukies außer im Onlineshop kaufen?**
 Bei Ecco Verde, Ototo, der Weltapotheke und bei den Händlern auf der Seite „Händler & Onlineshops“. Im Labor gibt es keinen Direktverkauf.
+
+## Datenschutz und Chat-Speicherdauer (DSGVO / österreichisches DSG)
+
+**Wie lange werden meine Daten und der Chatverlauf gespeichert?**
+Nach deiner Zustimmung zu Beginn des Chats werden dein Name, deine E-Mail-Adresse und der Gesprächsverlauf unter einer eindeutigen Benutzerkennung (User-ID) gemäß der DSGVO und dem österreichischen Datenschutzgesetz (DSG) für **6 Monate (180 Tage)** gespeichert und anschließend automatisch gelöscht. Du kannst deine Einwilligung jederzeit widerrufen und unter office@bacciorganics.com die sofortige Löschung oder einen Export deiner gespeicherten Daten anfordern.
