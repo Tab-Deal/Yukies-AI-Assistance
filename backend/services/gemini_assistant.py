@@ -86,6 +86,7 @@ class YukiesGeminiAssistant:
 - Verwende NIEMALS Emojis.
 - Antworte in der Sprache der Kundin ({language.upper()}). Im Deutschen verwende konsequent die Ansprache "{address_form}".
 - Antworte kurz und präzise: höchstens 3–5 Sätze (außer bei Schritt-für-Schritt-Anleitungen wie der Trockenbürste).
+- Beratungsfragen zu Schwangerschaft, Stillzeit (Body Butter) und Neugeborenen (Babyöl, Tummy Stick) gehören zu deinen Standard-Kompetenzen (trigger_handover = false). Setze trigger_handover NUR auf true, wenn ein echtes [OFFEN] Thema, eine Reklamation, ein Defekt oder der Wunsch nach einem Menschen vorliegt.
 
 --- KUNDEN-KONTEXT ---
 - Name: {customer_name}
@@ -109,13 +110,37 @@ class YukiesGeminiAssistant:
         lower = text.lower()
         matched: list[ProductCardSchema] = []
         keyword_map = {
-            "yukies-body-butter": ["body butter", "bodybutter", "shea coco", "sheabutter", "schwangerschaft", "stillzeit", "pregnancy", "stretch"],
-            "yukies-baby-oil": ["babyöl", "baby oil", "babyoel", "mandelöl", "windelbereich", "weiße stücke", "white flakes"],
-            "yukies-sugarscrub": ["sugar scrub", "sugarscrub", "zuckerpeeling", "peeling", "rose vanilla", "rosenblüten", "braun"],
-            "yukies-tummy-stick": ["tummy stick", "tummystick", "bauchmassage", "kakaobutter", "bauch", "bäuchlein", "tummy"],
-            "yukies-mild-hair-body-wash-150ml": ["hair & body wash", "wasch-gel", "waschgel", "body wash", "haare", "shampoo"],
-            "burste": ["trockenbürste", "bürste", "dry brush", "tampico", "lymphdrainage"],
-            "geschenksbox": ["geschenkbox", "geschenksbox", "mama & baby box", "mama-baby box", "gift box", "geschenk"],
+            "yukies-body-butter": [
+                "body butter", "bodybutter", "shea coco", "sheabutter",
+                "schwangerschaft", "stillzeit", "pregnancy", "stretch",
+                "grossesse", "vergetures", "beurre corporel",
+                "gravidanza", "smagliature", "burro corpo",
+            ],
+            "yukies-baby-oil": [
+                "babyöl", "baby oil", "babyoel", "mandelöl", "windelbereich",
+                "weiße stücke", "white flakes", "huile bébé", "amande douce",
+                "flocons blancs", "olio baby", "olio bambini", "mandorle dolci", "pezzetti bianchi",
+            ],
+            "yukies-sugarscrub": [
+                "sugar scrub", "sugarscrub", "zuckerpeeling", "peeling",
+                "rose vanilla", "rosenblüten", "braun", "gommage", "sucre", "esfoliante",
+            ],
+            "yukies-tummy-stick": [
+                "tummy stick", "tummystick", "bauchmassage", "kakaobutter",
+                "bauch", "bäuchlein", "tummy", "massage ventre", "pancino", "massaggio pancia",
+            ],
+            "yukies-mild-hair-body-wash-150ml": [
+                "hair & body wash", "wasch-gel", "waschgel", "body wash",
+                "haare", "shampoo", "gel lavant", "corps et cheveux", "bagnetto", "detergente",
+            ],
+            "burste": [
+                "trockenbürste", "bürste", "dry brush", "tampico", "lymphdrainage",
+                "brosse à sec", "spazzola a secco", "spazzola",
+            ],
+            "geschenksbox": [
+                "geschenkbox", "geschenksbox", "mama & baby box", "mama-baby box",
+                "gift box", "geschenk", "coffret cadeau", "confezione regalo",
+            ],
         }
         prod_by_handle = {p.handle: p for p in all_prods}
         for handle, keywords in keyword_map.items():
@@ -140,19 +165,38 @@ class YukiesGeminiAssistant:
             for w in [
                 "wie lange",
                 "how long",
+                "combien de temps",
+                "quanto tempo",
                 "stored",
                 "gespeichert",
+                "conservé",
+                "conservate",
                 "speicherdauer",
                 "chat history",
                 "chatverlauf",
                 "dsgvo",
                 "gdpr",
+                "rgpd",
                 "datenschutz",
             ]
         ) and any(
             w in lower
-            for w in ["chat", "daten", "data", "history", "verlauf", "stored", "gespeichert", "dsgvo", "gdpr"]
+            for w in ["chat", "daten", "data", "données", "dati", "history", "verlauf", "stored", "gespeichert", "dsgvo", "gdpr", "rgpd"]
         ):
+            if language == "fr":
+                return (
+                    "Avec votre consentement explicite au début de l'échange, votre nom, adresse e-mail et historique de chat sont conservés sous un identifiant unique conformément au RGPD et à la loi autrichienne (DSG) pendant 6 mois (180 jours), puis automatiquement supprimés. Vous pouvez demander l'effacement ou l'exportation de vos données à tout moment à office@bacciorganics.com.",
+                    [],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Con il tuo esplicito consenso all'inizio della chat, il tuo nome, indirizzo e-mail e la cronologia della conversazione vengono conservati sotto un identificativo utente univoco in conformità al GDPR e alla legge austriaca (DSG) per 6 mesi (180 giorni) e poi eliminati automaticamente. Puoi richiedere la cancellazione o l'esportazione dei tuoi dati in qualsiasi momento scrivendo a office@bacciorganics.com.",
+                    [],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "With your explicit consent at the start of the chat, your name, email address, and chat history are stored under a unique User ID in accordance with the EU GDPR and the Austrian Data Protection Act (DSG) for 6 months (180 days) and then automatically deleted. You can request immediate deletion or an export of your data at any time by contacting office@bacciorganics.com.",
@@ -173,14 +217,37 @@ class YukiesGeminiAssistant:
                 "in den warenkorb",
                 "warenkorb legen",
                 "add to cart",
+                "ajouter au panier",
+                "au panier",
+                "metti nel carrello",
+                "aggiungi al carrello",
+                "carrello",
                 "aus dem warenkorb",
                 "konto erstellen",
                 "create an account",
+                "créer un compte",
+                "crea un account",
                 "account anlegen",
             ]
         ):
             prods = await self._detect_relevant_handles_from_text(user_message)
             handles = [p.handle for p in prods]
+            if language == "fr":
+                return (
+                    "En tant que conseiller YUKIES, je ne peux pas ajouter directement des produits à votre panier ni créer de compte client. "
+                    "Vous pouvez ouvrir le produit directement via le lien ci-dessous, l'ajouter à votre panier sur yukies.at et procéder au paiement.",
+                    handles,
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "In qualità di assistente YUKIES, non posso inserire direttamente i prodotti nel carrello né creare un account cliente per te. "
+                    "Puoi aprire il prodotto direttamente tramite il link in basso, aggiungerlo al carrello su yukies.at e procedere all'acquisto.",
+                    handles,
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "As your YUKIES shopping advisor, I cannot directly add or remove items in your cart or create an account for you. "
@@ -206,7 +273,21 @@ class YukiesGeminiAssistant:
             )
 
         # 2. Discount / Rabattcode inquiry
-        if any(w in lower for w in ["rabatt", "rabattcode", "gutscheincode", "discount", "promo code", "coupon"]):
+        if any(w in lower for w in ["rabatt", "rabattcode", "gutscheincode", "discount", "promo code", "coupon", "code promo", "remise", "sconto", "codice sconto"]):
+            if language == "fr":
+                return (
+                    "Il n'y a actuellement aucun code promotionnel actif. Cependant, chaque commande comprend une carte de bienvenue Yukies, votre première commande reçoit 3 cires parfumées (5 g chacune) en cadeau, et dès 70 € d'achat, vous recevez un Tummy Stick en cadeau dans la limite des stocks disponibles (avec la livraison gratuite à partir de 50 € en Autriche, dans l'UE et en Suisse).",
+                    ["geschenksbox"],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Al momento non ci sono codici sconto attivi. Tuttavia, ogni ordine include un biglietto di benvenuto Yukies, il tuo primo ordine riceve 3 cere profumate (5 g ciascuna) in regalo, e a partire da 70 € di spesa ricevi un Tummy Stick in omaggio fino a esaurimento scorte (con spedizione gratuita da 50 € per Austria, UE e Svizzera).",
+                    ["geschenksbox"],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "There are currently no active discount codes. However, every order includes a Yukies greeting card, your first order comes with 3 wax melts (5 g each) as a gift, and orders over 70 € receive a free Tummy Stick while supplies last (plus free shipping from 50 € in Austria, the EU, and Switzerland).",
@@ -248,9 +329,23 @@ class YukiesGeminiAssistant:
             return (order_lookup_result["message"], [], False, None)
 
         # 4. Sugar Scrub brown color FAQ
-        if ("sugar scrub" in lower or "peeling" in lower) and (
-            "braun" in lower or "brown" in lower or "rosa" in lower or "schlecht" in lower
+        if ("sugar scrub" in lower or "peeling" in lower or "gommage" in lower) and (
+            "braun" in lower or "brown" in lower or "brun" in lower or "marrone" in lower or "rosa" in lower or "schlecht" in lower
         ):
+            if language == "fr":
+                return (
+                    "Rassurez-vous, votre Sugar Scrub est en parfait état. Nous n'utilisons aucun stabilisateur de couleur chimique : le gommage contient de véritables pétales de rose moulus qui foncent naturellement au contact de la lumière et de l'oxygène, tout comme des roses séchées. La qualité, l'efficacité et le parfum restent intacts.",
+                    ["yukies-sugarscrub"],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Non preoccuparti, il tuo Sugar Scrub è in perfette condizioni. Non utilizziamo stabilizzanti chimici di colore: lo scrub contiene veri petali di rosa macinati che scuriscono naturalmente a contatto con luce e ossigeno, proprio come le rose essiccate. Qualità, efficacia e profumo rimangono inalterati.",
+                    ["yukies-sugarscrub"],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "No worries, your Sugar Scrub is in perfect condition. We do not use any artificial color stabilizers, and the real ground rose petals naturally darken to a warm brown when exposed to light and oxygen—just like dried roses. Quality, effect, and scent remain unchanged.",
@@ -266,9 +361,23 @@ class YukiesGeminiAssistant:
             )
 
         # 5. White flakes in Baby Oil FAQ
-        if ("babyöl" in lower or "baby oil" in lower) and (
-            "weiß" in lower or "weisse" in lower or "stücke" in lower or "flocken" in lower or "white" in lower
+        if ("babyöl" in lower or "baby oil" in lower or "huile" in lower or "olio" in lower) and (
+            "weiß" in lower or "weisse" in lower or "stücke" in lower or "flocken" in lower or "white" in lower or "flocons" in lower or "pezzetti" in lower or "bianchi" in lower
         ):
+            if language == "fr":
+                return (
+                    "Ce n'est pas un défaut : il s'agit d'huile de coco bio cristallisée, ce qui est typique d'un produit naturel pur. La qualité de votre huile pour bébé reste parfaitement intacte.",
+                    ["yukies-baby-oil"],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Non è un difetto: si tratta di olio di cocco biologico cristallizzato, assolutamente tipico per un prodotto naturale puro. La qualità del tuo olio baby rimane inalterata.",
+                    ["yukies-baby-oil"],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "That is not a defect: the white flakes are crystallized organic coconut oil, which is typical for a pure natural product. The quality of your Baby Oil remains completely unchanged.",
@@ -284,7 +393,21 @@ class YukiesGeminiAssistant:
             )
 
         # 6. Dry Brush (Trockenbürste) application
-        if "trockenbürste" in lower or "bürste" in lower or "dry brush" in lower:
+        if "trockenbürste" in lower or "bürste" in lower or "dry brush" in lower or "brosse" in lower or "spazzola" in lower:
+            if language == "fr":
+                return (
+                    "Brossez toujours en direction du cœur pour un drainage lymphatique cosmétique : commencez par la plante des pieds en mouvements longs et doux vers le haut, puis brossez les bras des mains vers les aisselles, le ventre en cercles doux dans le sens des aiguilles d'une montre, et le dos vers les épaules. Une pression douce suffit.",
+                    ["burste"],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Spazzola sempre verso il cuore per un drenaggio linfatico cosmetico: inizia dalla pianta dei piedi con movimenti lunghi e delicati verso l'alto, poi spazzola le braccia dalle mani verso le ascelle, la pancia con movimenti circolari in senso orario e la schiena verso le spalle. È sufficiente una pressione delicata.",
+                    ["burste"],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "Always brush toward the heart for cosmetic lymphatic drainage: start at the soles of your feet in long, gentle strokes upward over calves and thighs, then brush arms from hands toward armpits, the belly in gentle clockwise circles, and back/hips upward toward the shoulders. Gentle pressure is sufficient; avoid sensitive areas, open wounds, fresh scars, and sunburn.",
@@ -300,7 +423,21 @@ class YukiesGeminiAssistant:
             )
 
         # 7. Shipping & Delivery
-        if any(w in lower for w in ["versand", "lieferzeit", "shipping", "delivery", "retoure", "rückgabe", "widerruf"]):
+        if any(w in lower for w in ["versand", "lieferzeit", "shipping", "delivery", "retoure", "rückgabe", "widerruf", "livraison", "frais de port", "spedizione", "reso", "tempi di consegna"]):
+            if language == "fr":
+                return (
+                    "Nous expédions avec la Poste autrichienne sous 1 à 2 jours ouvrables après réception du paiement. La livraison coûte 4,90 € en Autriche (1–2 jours), 10,90 € dans l'UE (2–4 jours) et 16,90 € en Suisse (5–10 jours); la livraison est offerte dès 50 € d'achat en Autriche, dans l'UE et en Suisse. Les produits scellés peuvent être retournés dans un délai de 14 jours.",
+                    [],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Spediamo con la Posta austriaca entro 1–2 giorni lavorativi dalla ricezione del pagamento. La spedizione costa 4,90 € in Austria (1–2 giorni), 10,90 € nell'UE (2–4 giorni) e 16,90 € in Svizzera (5–10 giorni); la spedizione è gratuita a partire da 50 € di spesa per Austria, UE e Svizzera. I prodotti non aperti e sigillati possono essere resi entro 14 giorni.",
+                    [],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "We ship via Austrian Post within 1–2 business days after payment receipt. Shipping costs 4,90 € in Austria (1–2 business days), 10,90 € in the EU (2–4 business days), and 16,90 € to Switzerland (5–10 business days), with free shipping on orders from 50 € in Austria, the EU, and Switzerland. Unopened, originally sealed products can be returned within 14 days.",
@@ -316,7 +453,21 @@ class YukiesGeminiAssistant:
             )
 
         # 8. Pregnancy / Mama recommendations
-        if any(w in lower for w in ["schwanger", "schwangerschaft", "stillzeit", "mama", "pregnant", "pregnancy", "body butter"]):
+        if any(w in lower for w in ["schwanger", "schwangerschaft", "stillzeit", "mama", "pregnant", "pregnancy", "body butter", "grossesse", "enceinte", "allaitement", "gravidanza", "allattamento"]):
+            if language == "fr":
+                return (
+                    "Pour la grossesse et l'allaitement, nous recommandons notre Body Butter Shea Coco 100 % bio (25,90 €) : sans parfum ni huiles essentielles, il prend soin de la peau pendant qu'elle s'étire et soutient son élasticité naturelle. Vous pouvez également l'associer à notre Sugar Scrub Rose Vanilla et à la brosse à sec.",
+                    ["yukies-body-butter", "burste", "geschenksbox"],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Per la gravidanza, il post-parto e l'allattamento consigliamo il nostro Body Butter Shea Coco 100% bio (25,90 €): privo di profumo e oli essenziali, sostiene la naturale elasticità della pelle e se ne prende cura mentre si distende. Puoi abbinarlo anche al nostro Sugar Scrub Rose Vanilla e alla spazzola a secco.",
+                    ["yukies-body-butter", "burste", "geschenksbox"],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "For pregnancy, postpartum, and breastfeeding, we recommend our 100% organic Body Butter Shea Coco (25,90 €), which supports natural skin elasticity and cares for your skin as it stretches—completely free of perfume and essential oils. You can also combine it with our Sugar Scrub Rose Vanilla and Dry Brush, or choose the Mama & Baby Gift Box.",
@@ -332,7 +483,21 @@ class YukiesGeminiAssistant:
             )
 
         # 9. Baby products / Newborn recommendations
-        if any(w in lower for w in ["baby", "neugeboren", "geburt", "newborn", "tummy", "bauch"]):
+        if any(w in lower for w in ["baby", "neugeboren", "geburt", "newborn", "tummy", "bauch", "bébé", "bebe", "naissance", "bambino", "neonato", "pancia"]):
+            if language == "fr":
+                return (
+                    "Nos soins pour bébé s'utilisent dès la naissance et sont sans parfum ni huiles essentielles : l'Huile pour bébé Amande douce Coco (29,90 €) dorlote délicatement la peau, le Tummy Stick au beurre de cacao bio (14,90 €) est idéal pour un massage doux du ventre, et le Mild Hair & Body Wash (19,90 €) nettoie en douceur.",
+                    ["yukies-baby-oil", "yukies-tummy-stick", "yukies-mild-hair-body-wash-150ml"],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "I nostri prodotti per neonati possono essere usati fin dalla nascita e sono privi di profumo e oli essenziali: l'Olio Baby Mandorla Dolce Cocco (29,90 €) nutre delicatamente la pelle, il Tummy Stick al burro di cacao bio (14,90 €) è ideale per un massaggio delicato al pancino, e il Mild Hair & Body Wash (19,90 €) deterge con estrema delicatezza.",
+                    ["yukies-baby-oil", "yukies-tummy-stick", "yukies-mild-hair-body-wash-150ml"],
+                    False,
+                    None,
+                )
             if language == "en":
                 return (
                     "Our baby care products can be used right from birth and are free of perfume and essential oils: the Baby Oil Sweet Almond Coconut (29,90 €) cares for delicate baby skin particularly gently, the Tummy Stick made of 100% organic cocoa butter (14,90 €) is ideal for a gentle tummy massage, and the Mild Hair & Body Wash (19,90 €) cleanses hair and skin gently.",
@@ -360,6 +525,20 @@ class YukiesGeminiAssistant:
             )
 
         all_prods = await shopify_client.get_all_products()
+        if language == "fr":
+            return (
+                "Bienvenue chez YUKIES. Nous fabriquons à la main des cosmétiques naturels certifiés et minimalistes pour bébés, enfants et mamans dans notre laboratoire à Vienne : Body Butter, Huile pour bébé, Tummy Stick, Mild Hair & Body Wash, Sugar Scrub, Brosse à sec et Coffret cadeau. Comment puis-je vous conseiller aujourd'hui ?",
+                [p.handle for p in all_prods[:3]],
+                False,
+                None,
+            )
+        if language == "it":
+            return (
+                "Benvenuta da YUKIES. Creiamo a mano nel nostro laboratorio a Vienna cosmetici naturali certificati e minimalisti per neonati, bambini e mamme: Body Butter, Olio Baby, Tummy Stick, Mild Hair & Body Wash, Sugar Scrub, Spazzola a secco e Confezione Regalo. Come posso aiutarti oggi?",
+                [p.handle for p in all_prods[:3]],
+                False,
+                None,
+            )
         if language == "en":
             return (
                 "Welcome to YUKIES. We handcraft minimalist, certified natural cosmetics for babies, children, and mothers in our laboratory in Vienna—including our 100% organic Body Butter, Baby Oil, Tummy Stick, Mild Hair & Body Wash, Sugar Scrub, Dry Brush, and Mama & Baby Gift Box. How may I advise you today?",

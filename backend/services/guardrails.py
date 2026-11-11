@@ -69,10 +69,38 @@ FORBIDDEN_CLAIM_REPLACEMENTS: list[tuple[re.Pattern[str], str]] = [
     ),
     (
         re.compile(
+            r"(évite|prévient|empêche)\s+(l'apparition\s+des?\s+)?vergetures",
+            re.IGNORECASE,
+        ),
+        "prend soin de la peau pendant qu'elle s'étire",
+    ),
+    (
+        re.compile(
+            r"(previene|evita)\s+(la\s+formazione\s+delle?\s+)?smagliature",
+            re.IGNORECASE,
+        ),
+        "si prende cura della pelle mentre si distende",
+    ),
+    (
+        re.compile(
             r"relieves?\s+(cramps|bloating|colic|three-month\s+colic)",
             re.IGNORECASE,
         ),
         "provides a gentle tummy massage that does your baby good",
+    ),
+    (
+        re.compile(
+            r"(soulage|calme|élimine)\s+les\s+(coliques|crampes|ballonnements)",
+            re.IGNORECASE,
+        ),
+        "convient pour un massage doux du ventre qui fait du bien à votre bébé",
+    ),
+    (
+        re.compile(
+            r"(allevia|calma|elimina)\s+(le\s+)?(coliche|crampi|gonfiori)",
+            re.IGNORECASE,
+        ),
+        "è ideale per un massaggio delicato al pancino che fa bene al tuo bambino",
     ),
     (
         re.compile(
@@ -141,10 +169,27 @@ def detect_address_form(text: str, current_default: str = "du") -> str:
 def detect_language(text: str, fallback: str = "de") -> str:
     """Detect DE, EN, FR, or IT from user input."""
     lower = f" {text.lower()} "
-    it_markers = [" ciao ", " vorrei ", " spedizione ", " bambino ", " prodotti ", " grazie ", " quanto ", " ordine "]
-    fr_markers = [" bonjour ", " salut ", " livraison ", " produit ", " bébé ", " grossesse ", " commande ", " merci ", " quel ", " quelle "]
-    en_markers = [" hello ", " hi ", " shipping ", " product ", " baby ", " pregnancy ", " order ", " how ", " what ", " can i ", " price ", " ingredients "]
-    de_markers = [" hallo ", " versand ", " bestellung ", " schwangerschaft ", " babyöl ", " wie ", " wann ", " ich ", " für ", " ist ", " sind "]
+    it_markers = [
+        " ciao ", " buongiorno ", " salve ", " vorrei ", " spedizione ",
+        " bambino ", " neonato ", " prodotti ", " grazie ", " quanto ",
+        " come ", " ordine ", " gravidanza ", " smagliature ", " pelle ",
+        " consegna ", " burro ", " olio ", " questo ", " questa ",
+    ]
+    fr_markers = [
+        " bonjour ", " salut ", " livraison ", " produit ", " produits ",
+        " bébé ", " bebes ", " grossesse ", " commande ", " merci ",
+        " quel ", " quelle ", " comment ", " pourquoi ", " combien ",
+        " pour ", " votre ", " vos ", " peau ", " beurre ", " huile ",
+    ]
+    en_markers = [
+        " hello ", " hi ", " shipping ", " product ", " products ",
+        " baby ", " pregnancy ", " order ", " how ", " what ",
+        " can i ", " price ", " ingredients ", " delivery ", " skin ",
+    ]
+    de_markers = [
+        " hallo ", " versand ", " bestellung ", " schwangerschaft ", " babyöl ",
+        " wie ", " wann ", " ich ", " für ", " ist ", " sind ", " produkte ",
+    ]
 
     scores = {
         "it": sum(1 for m in it_markers if m in lower),
@@ -172,8 +217,13 @@ def analyze_customer_input(
     )
 
     # 1. Special case: Broken Tummy Stick handle (04_tummy_stick.md & 04_kundengespraeche.md)
-    if ("tummy" in lower or "stick" in lower or "stiel" in lower) and any(
-        w in lower for w in ["abgebrochen", "kaputt", "gebrochen", "broken", "snapped"]
+    if ("tummy" in lower or "stick" in lower or "stiel" in lower or "baume" in lower) and any(
+        w in lower for w in [
+            "abgebrochen", "kaputt", "gebrochen",
+            "broken", "snapped",
+            "cassé", "casse", "abîmé", "abime",
+            "rotto", "spezzato",
+        ]
     ):
         result.requires_immediate_handoff = True
         result.handoff_reason = "Beschädigte Ware: Tummy Stick Stiel abgebrochen"
@@ -343,6 +393,16 @@ def get_standard_handover_text(
 ) -> str:
     """Return the exact approved handover wording from 07_service_uebergabe.md & 04_kundengespraeche.md."""
     if special_instruction == "tummy_stick_broken":
+        if lang == "fr":
+            return (
+                "Nous en sommes sincèrement désolés. Le baume lui-même n'est pas endommagé : vous pouvez tenir l'extrémité directement dans la main comme un beurre corporel solide ; il fond doucement avec la chaleur de votre peau. "
+                "Veuillez nous envoyer une photo à office@bacciorganics.com. Je transmets directement votre message à notre équipe – nous vous répondrons dans les 4 heures, y compris le week-end."
+            )
+        if lang == "it":
+            return (
+                "Ci dispiace molto per l'accaduto. Il balsamo stesso non è danneggiato: puoi tenere la parte superiore direttamente in mano come un burro corpo solido; si scioglierà delicatamente con il calore della mano. "
+                "Inviaci una foto a office@bacciorganics.com. Trasmetto la tua richiesta direttamente al nostro team – ti risponderemo entro 4 ore, anche nel fine settimana."
+            )
         if lang == "en":
             return (
                 "We are very sorry about that. The balm itself is undamaged: you can hold the top piece directly in your hand like a solid body butter, and it will melt gently with the warmth of your hand. "
@@ -359,6 +419,16 @@ def get_standard_handover_text(
         )
 
     if special_instruction == "medical_skin_reaction":
+        if lang == "fr":
+            return (
+                "Je suis sincèrement désolé d'apprendre cela. En cas de réaction cutanée, d'allergie ou de question médicale, nous vous recommandons de consulter un médecin ou une sage-femme. "
+                "Je transmets immédiatement votre demande à notre équipe. Nous vous répondrons dans les 4 heures, y compris le week-end. Vous pouvez également nous joindre directement à office@bacciorganics.com."
+            )
+        if lang == "it":
+            return (
+                "Mi dispiace davvero molto per questo. In caso di reazioni cutanee, allergie o dubbi di salute, consigliamo di consultare un medico o l'ostetrica. "
+                "Trasmetto immediatamente la tua richiesta al nostro team. Ti risponderemo entro 4 ore, anche nel fine settimana. Puoi scriverci anche direttamente a office@bacciorganics.com."
+            )
         if lang == "en":
             return (
                 "I am sorry to hear that. For skin reactions, allergies, or medical questions, please consult a doctor or midwife. "
@@ -375,6 +445,16 @@ def get_standard_handover_text(
         )
 
     if special_instruction == "damaged_or_complaint":
+        if lang == "fr":
+            return (
+                "Je comprends tout à fait et j'en suis sincèrement désolé. Si un produit est arrivé endommagé, veuillez nous envoyer une photo à office@bacciorganics.com. "
+                "Je transmets immédiatement votre demande à notre équipe. Nous vous répondrons dans les 4 heures, y compris le week-end."
+            )
+        if lang == "it":
+            return (
+                "Capisco perfettamente e mi dispiace molto per questo. Se un prodotto è arrivato danneggiato, ti preghiamo di inviare una foto a office@bacciorganics.com. "
+                "Trasmetto immediatamente la tua richiesta al nostro team. Ti risponderemo entro 4 ore, anche nel fine settimana."
+            )
         if lang == "en":
             return (
                 "I completely understand your frustration and I am very sorry about this. If an item arrived damaged, please send a photo to office@bacciorganics.com. "

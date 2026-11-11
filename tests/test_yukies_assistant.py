@@ -1,3 +1,4 @@
+import re
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -9,6 +10,15 @@ from backend.services.guardrails import analyze_customer_input, sanitize_ai_resp
 @pytest.fixture(autouse=True)
 async def setup_database():
     await init_db()
+    from backend.database import SessionLocal
+    from backend.models import User, Conversation, Message, ConsentRecord, AuditLog
+    with SessionLocal() as s:
+        s.query(Message).delete()
+        s.query(Conversation).delete()
+        s.query(ConsentRecord).delete()
+        s.query(AuditLog).delete()
+        s.query(User).delete()
+        s.commit()
 
 
 @pytest.mark.asyncio
@@ -211,3 +221,108 @@ async def test_live_agent_takeover_and_gdpr_export_erase():
         erased = await client.delete(f"/api/admin/gdpr/erase/{user_id}", auth=admin_auth)
         assert erased.status_code == 200
         assert erased.json()["erased"] is True
+
+
+@pytest.mark.asyncio
+async def test_multilingual_french_and_italian_support():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # 1. French Customer (Claire Dupont)
+        fr_sess = (
+            await client.post(
+                "/api/chat/session",
+                json={
+                    "shopify_customer_id": None,
+                    "full_name": "Claire Dupont",
+                    "email": "claire.dupont@example.fr",
+                    "gdpr_consent": True,
+                    "language": "fr",
+                },
+            )
+        ).json()
+        assert fr_sess["user_id"]
+        assert fr_sess["conversation_id"]
+
+        # French Inquiry: Pregnancy care (Body Butter)
+        fr_msg = (
+            await client.post(
+                "/api/chat/message",
+                json={
+                    "user_id": fr_sess["user_id"],
+                    "conversation_id": fr_sess["conversation_id"],
+                    "message": "Quels produits recommandez-vous pour la grossesse ?",
+                    "language": "fr",
+                },
+            )
+        ).json()
+        assert fr_msg["status"] == "ai_active"
+        fr_content = fr_msg["reply_message"]["content"]
+        assert any(w in fr_content.lower() for w in ["grossesse", "body butter", "beurre", "peau"])
+        assert any(p["handle"] == "yukies-body-butter" for p in fr_msg["reply_message"]["referenced_products"])
+        # No emojis
+        assert not re.search(r"[\U0001F600-\U0001F64F]", fr_content)
+
+        # French Handover Trigger: Broken stick
+        fr_esc = (
+            await client.post(
+                "/api/chat/message",
+                json={
+                    "user_id": fr_sess["user_id"],
+                    "conversation_id": fr_sess["conversation_id"],
+                    "message": "Le stick de mon Tummy Stick est cassé.",
+                    "language": "fr",
+                },
+            )
+        ).json()
+        assert fr_esc["handover_triggered"] is True
+        assert "office@bacciorganics.com" in fr_esc["reply_message"]["content"]
+        assert "désolés" in fr_esc["reply_message"]["content"].lower()
+
+        # 2. Italian Customer (Giulia Bianchi)
+        it_sess = (
+            await client.post(
+                "/api/chat/session",
+                json={
+                    "shopify_customer_id": None,
+                    "full_name": "Giulia Bianchi",
+                    "email": "giulia.bianchi@example.it",
+                    "gdpr_consent": True,
+                    "language": "it",
+                },
+            )
+        ).json()
+        assert it_sess["user_id"]
+        assert it_sess["conversation_id"]
+
+        # Italian Inquiry: Baby care from birth
+        it_msg = (
+            await client.post(
+                "/api/chat/message",
+                json={
+                    "user_id": it_sess["user_id"],
+                    "conversation_id": it_sess["conversation_id"],
+                    "message": "Quali prodotti per neonati consigliate fin dalla nascita?",
+                    "language": "it",
+                },
+            )
+        ).json()
+        assert it_msg["status"] == "ai_active"
+        it_content = it_msg["reply_message"]["content"]
+        assert any(w in it_content.lower() for w in ["nascita", "baby", "olio", "pancino", "bambini"])
+        assert any(p["handle"] in ["yukies-baby-oil", "yukies-tummy-stick", "yukies-mild-hair-body-wash-150ml"] for p in it_msg["reply_message"]["referenced_products"])
+
+        # Italian Handover Trigger: Human request
+        it_esc = (
+            await client.post(
+                "/api/chat/message",
+                json={
+                    "user_id": it_sess["user_id"],
+                    "conversation_id": it_sess["conversation_id"],
+                    "message": "Vorrei parlare con una persona vera.",
+                    "language": "it",
+                },
+            )
+        ).json()
+        assert it_esc["handover_triggered"] is True
+        assert "office@bacciorganics.com" in it_esc["reply_message"]["content"]
+        assert "trasmetto" in it_esc["reply_message"]["content"].lower()

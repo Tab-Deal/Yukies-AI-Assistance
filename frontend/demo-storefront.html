@@ -272,6 +272,13 @@
       <a class="admin-link" href="/admin" target="_blank">
         Live-Chat Konsole (Silvia & Barbara) &nearr;
       </a>
+      <div style="display:flex; align-items:center; gap:4px; margin-left:8px; border-left:1px solid rgba(255,255,255,0.25); padding-left:10px;">
+        <span style="font-size:11px; opacity:0.85;">Sprache:</span>
+        <button class="mode-btn active" id="lang-de" onclick="setLanguage('de')" style="padding:4px 8px; font-size:11px;">DE</button>
+        <button class="mode-btn" id="lang-en" onclick="setLanguage('en')" style="padding:4px 8px; font-size:11px;">EN</button>
+        <button class="mode-btn" id="lang-fr" onclick="setLanguage('fr')" style="padding:4px 8px; font-size:11px;">FR</button>
+        <button class="mode-btn" id="lang-it" onclick="setLanguage('it')" style="padding:4px 8px; font-size:11px;">IT</button>
+      </div>
     </div>
   </div>
 
@@ -320,6 +327,12 @@
             </button>
             <button class="scenario-pill" onclick="sendTestPrompt('Wo ist meine Bestellung #1042?')">
               7. Bestellstatus #1042 (für Anna Müller)
+            </button>
+            <button class="scenario-pill" onclick="sendTestPrompt('Bonjour, quels produits pour bébé recommandez-vous dès la naissance ?', 'fr')">
+              8. FR: Quels soins pour bébé dès la naissance ?
+            </button>
+            <button class="scenario-pill" onclick="sendTestPrompt('Ciao, quali prodotti consigliate per la gravidanza e l\'allattamento?', 'it')">
+              9. IT: Quali prodotti consigliate in gravidanza?
             </button>
           </div>
         </section>
@@ -427,7 +440,25 @@
       window.dispatchEvent(new CustomEvent('yukies-customer-changed'));
     }
 
-    async function sendTestPrompt(text) {
+    function setLanguage(lang) {
+      ['de', 'en', 'fr', 'it'].forEach(l => {
+        const btn = document.getElementById('lang-' + l);
+        if (btn) btn.classList.toggle('active', l === lang);
+      });
+      window.YukiesCustomer.locale = lang;
+      const widget = document.querySelector('yukies-chat-widget');
+      if (widget) {
+        widget.lang = lang;
+        widget.render();
+        widget.bindEvents();
+      }
+      window.dispatchEvent(new CustomEvent('yukies-customer-changed'));
+    }
+
+    async function sendTestPrompt(text, optLang) {
+      if (optLang) {
+        setLanguage(optLang);
+      }
       const widget = document.querySelector('yukies-chat-widget');
       if (!widget.session) {
         setVisitorMode('anna');
