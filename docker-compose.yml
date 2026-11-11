@@ -1,0 +1,15 @@
+services:
+  yukies-assistant:
+    build: .
+    container_name: yukies-ai-assistant
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./knowledge_base:/app/knowledge_base:ro
+      - yukies_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  yukies_data:

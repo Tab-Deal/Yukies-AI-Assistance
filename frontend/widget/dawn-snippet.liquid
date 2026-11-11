@@ -1,0 +1,16 @@
+{% comment %}
+  YUKIES AI Shopping Companion & Support Assistant – Shopify Dawn 7.0 Snippet
+  Drop into layout/theme.liquid right before </body> when ready for production.
+  Automatically passes logged-in Shopify customer identity or triggers Guest DSGVO Pre-Chat Form.
+{% endcomment %}
+
+<script>
+  window.YukiesCustomer = {
+    id: {% if customer %}{{ customer.id | json }}{% else %}null{% endif %},
+    email: {% if customer %}{{ customer.email | json }}{% else %}null{% endif %},
+    full_name: {% if customer %}{{ customer.name | json }}{% else %}null{% endif %},
+    locale: {{ request.locale.iso_code | slice: 0, 2 | downcase | json }}
+  };
+</script>
+<script src="https://chat.yukies.at/widget/yukies-widget.js" defer></script>
+<yukies-chat-widget api-base="https://chat.yukies.at"></yukies-chat-widget>

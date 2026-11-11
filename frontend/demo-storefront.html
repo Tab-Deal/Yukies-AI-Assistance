@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YUKIES (yukies.at) – Shopify Dawn 7.0 Sandbox Simulator</title>
+  <style>
+    :root {
+      --bg: #FAF7F2;
+      --surface: #FFFFFF;
+      --primary: #2E3B32;
+      --border: #E5DED4;
+      --text: #232321;
+      --muted: #6E6A63;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    /* Sandbox Control Bar */
+    .sandbox-bar {
+      background: #1D2520;
+      color: #FAF7F2;
+      padding: 10px 24px;
+      font-size: 12.5px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .sandbox-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      background: rgba(255,255,255,0.1);
+      color: #FAF7F2;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #98C9A3;
+      color: #1D2520;
+      border-color: #98C9A3;
+      font-weight: 600;
+    }
+    .admin-link {
+      background: #C7B299;
+      color: #1D2520;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    /* Simulated Dawn 7.0 Storefront Header */
+    .announcement-bar {
+      background: #EAE3D5;
+      color: var(--primary);
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+    .store-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .store-logo {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--primary);
+    }
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 36px 24px 120px 24px;
+    }
+    .hero {
+      background: #F1ECE2;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 36px;
+      margin-bottom: 36px;
+    }
+    .hero h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 720px;
+    }
+    .test-scenarios {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+    .test-scenarios h3 {
+      margin: 0 0 12px 0;
+      font-size: 15px;
+      color: var(--primary);
+    }
+    .scenario-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .scenario-pill {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--primary);
+    }
+    .scenario-pill:hover {
+      background: #EAE4D8;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .store-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .store-card .cert {
+      font-size: 10.5px;
+      color: #5C7463;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .store-card h4 {
+      margin: 6px 0;
+      font-size: 15.5px;
+      color: var(--primary);
+    }
+    .store-card p {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.45;
+      flex: 1;
+    }
+    .store-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="sandbox-bar">
+    <div>
+      <strong>ISOLIERTER SANDBOX-SIMULATOR (yukies.at · Dawn 7.0)</strong>
+      <span style="opacity:0.75; margin-left:8px;">Keine Verbindung zum Live-Admin – 100 % sicher zum Testen</span>
+    </div>
+    <div class="sandbox-controls">
+      <span>Simulierter Besucher-Status:</span>
+      <button class="mode-btn active" id="btn-guest" onclick="setVisitorMode('guest')">
+        Gast (Nicht eingeloggt &rarr; Name + E-Mail Pflicht)
+      </button>
+      <button class="mode-btn" id="btn-anna" onclick="setVisitorMode('anna')">
+        Eingeloggt: Anna Müller (Bestellung #1042)
+      </button>
+      <button class="mode-btn" id="btn-sophie" onclick="setVisitorMode('sophie')">
+        Eingeloggt: Sophie Hofer (Bestellung #1048)
+      </button>
+      <a class="admin-link" href="/admin" target="_blank">
+        Live-Chat Konsole (Silvia & Barbara) öffnen &nearr;
+      </a>
+    </div>
+  </div>
+
+  <div class="announcement-bar">
+    Gratisversand ab 50 € (AT, EU, CH) · Jede 1. Bestellung erhält 3 Duftwachse gratis · Handgefertigt in Wien
+  </div>
+
+  <header class="store-header">
+    <div class="store-logo">YUKIES</div>
+    <div style="font-size:13px; color:var(--muted);" id="header-customer-status">
+      Status: Gast-Besucherin (nicht eingeloggt)
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Minimalistische Naturkosmetik für Babys, Kinder & Mamas</h1>
+      <p>
+        Rein, Gesund, Sicher. Von Hand und in kleinen Mengen im Labor von Bacci Organics in Wien (15. Bezirk) gefertigt.
+        Klicke unten rechts auf <strong>„YUKIES Beratung“</strong>, um den KI-Assistenten zu testen.
+      </p>
+    </section>
+
+    <section class="test-scenarios">
+      <h3>Schnelltest-Szenarien (Klicke, um die Frage direkt im Widget zu testen):</h3>
+      <div class="scenario-grid">
+        <button class="scenario-pill" onclick="sendTestPrompt('Welche Produkte empfiehlst du mir für die Schwangerschaft und Stillzeit?')">
+          1. Beratung Schwangerschaft (Body Butter)
+        </button>
+        <button class="scenario-pill" onclick="sendTestPrompt('Mein Sugar Scrub sieht nicht mehr rosa aus, sondern braun. Ist es schlecht geworden?')">
+          2. FAQ: Sugar Scrub braun geworden
+        </button>
+        <button class="scenario-pill" onclick="sendTestPrompt('Warum schwimmen im Babyöl weiße Stücke?')">
+          3. FAQ: Weiße Stücke im Babyöl
+        </button>
+        <button class="scenario-pill" onclick="sendTestPrompt('Leg mir bitte die Body Butter in den Warenkorb und gib mir einen Rabattcode.')">
+          4. Guardrail: Warenkorb & Rabattcode (Nicht-Aktionierbar)
+        </button>
+        <button class="scenario-pill" onclick="sendTestPrompt('Wie oft und wie viel Body Butter soll ich täglich auftragen?')">
+          5. [OFFEN]-Regel: Body Butter wie oft/viel &rarr; Übergabe
+        </button>
+        <button class="scenario-pill" onclick="sendTestPrompt('Der Stiel meines Tummy Sticks ist abgebrochen. Was kann ich tun?')">
+          6. Reklamation: Tummy Stick abgebrochen &rarr; Übergabe
+        </button>
+        <button class="scenario-pill" onclick="sendTestPrompt('Wo ist meine Bestellung #1042?')">
+          7. Bestellstatus #1042 (für Anna Müller)
+        </button>
+      </div>
+    </section>
+
+    <section class="product-grid" id="product-grid"></section>
+  </main>
+
+  <script>
+    window.YukiesCustomer = { id: null, email: null, full_name: null, locale: 'de' };
+
+    function setVisitorMode(mode) {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      const statusEl = document.getElementById('header-customer-status');
+
+      if (mode === 'guest') {
+        document.getElementById('btn-guest').classList.add('active');
+        localStorage.removeItem('yukies_guest_session_v1');
+        window.YukiesCustomer = { id: null, email: null, full_name: null, locale: 'de' };
+        statusEl.textContent = 'Status: Gast-Besucherin (nicht eingeloggt – Pre-Chat Formular aktiv)';
+      } else if (mode === 'anna') {
+        document.getElementById('btn-anna').classList.add('active');
+        window.YukiesCustomer = {
+          id: 'cust_yukies_anna_101',
+          email: 'anna.mueller@example.at',
+          full_name: 'Anna Müller',
+          locale: 'de'
+        };
+        statusEl.textContent = 'Eingeloggt im Shopify-Konto: Anna Müller (anna.mueller@example.at)';
+      } else if (mode === 'sophie') {
+        document.getElementById('btn-sophie').classList.add('active');
+        window.YukiesCustomer = {
+          id: 'cust_yukies_sophie_202',
+          email: 'sophie.hofer@example.at',
+          full_name: 'Sophie Hofer',
+          locale: 'de'
+        };
+        statusEl.textContent = 'Eingeloggt im Shopify-Konto: Sophie Hofer (sophie.hofer@example.at)';
+      }
+      window.dispatchEvent(new CustomEvent('yukies-customer-changed'));
+    }
+
+    async function sendTestPrompt(text) {
+      const widget = document.querySelector('yukies-chat-widget');
+      if (!widget.isOpen) {
+        await widget.toggleOpen();
+      }
+      if (!widget.session) {
+        // Automatically switch to logged-in test customer Anna Müller if guest form wasn't filled yet
+        setVisitorMode('anna');
+        await widget.ensureSessionIfLoggedIn();
+        widget.render();
+        widget.bindEvents();
+      }
+      if (widget.session) {
+        // Make sure conversation is in AI mode before testing AI reply
+        if (widget.session.status === 'agent_active') {
+          await fetch(`/api/admin/conversations/${widget.session.conversation_id}/return-to-ai`, { method: 'POST' });
+          widget.session.status = 'ai_active';
+        }
+        await widget.sendMessage(text);
+      }
+    }
+
+    async function renderCatalog() {
+      const res = await fetch('/api/products');
+      const products = await res.json();
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = products.map(p => `
+        <div class="store-card">
+          <div>
+            <div class="cert">${p.certification || ''}</div>
+            <h4>${p.title} (${p.size})</h4>
+            <p>${p.short_description}</p>
+          </div>
+          <div class="store-card-footer">
+            <span>${p.price}</span>
+            <a href="${p.product_url}" target="_blank" style="color:var(--primary); font-size:12.5px;">Auf yukies.at ansehen &nearr;</a>
+          </div>
+        </div>
+      `).join('');
+    }
+    renderCatalog();
+  </script>
+
+  <script src="/widget/yukies-widget.js"></script>
+  <yukies-chat-widget default-open="true"></yukies-chat-widget>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YUKIES Team Live-Chat & DSGVO Konsole (Silvia & Barbara)</title>
+  <style>
+    :root {
+      --bg: #F6F4EF;
+      --surface: #FFFFFF;
+      --primary: #2E3B32;
+      --border: #E2DDD3;
+      --text: #222220;
+      --muted: #6C6861;
+      --warn-bg: #FFF4E5;
+      --warn-text: #8A4B08;
+      --active-bg: #E6F2EA;
+      --active-text: #1F5730;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--primary);
+      color: #FAF7F2;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .agent-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .agent-selector select {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+    }
+    .layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 350px 1fr 340px;
+      overflow: hidden;
+    }
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .conv-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .conv-item:hover, .conv-item.selected {
+      background: #F4F0E8;
+    }
+    .conv-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .conv-name { font-weight: 600; font-size: 14px; }
+    .badge {
+      font-size: 10.5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .badge.waiting_for_agent { background: var(--warn-bg); color: var(--warn-text); }
+    .badge.agent_active { background: var(--active-bg); color: var(--active-text); }
+    .badge.ai_active { background: #ECEAE4; color: var(--muted); }
+    .conv-meta { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+    .conv-preview { font-size: 12px; color: var(--text); opacity: 0.85; }
+
+    .chat-pane {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .chat-toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: #E6E1D6;
+      color: var(--text);
+    }
+    .btn.danger {
+      background: #9E2A2B;
+      color: #fff;
+    }
+    .messages-box {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg {
+      max-width: 75%;
+      padding: 12px 15px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .msg.customer { align-self: flex-start; border-left: 4px solid var(--primary); }
+    .msg.ai { align-self: flex-end; background: #EFECE6; }
+    .msg.human_agent { align-self: flex-end; background: #E3F0E6; border-color: #B4D3BC; }
+    .msg.system { align-self: center; font-size: 11.5px; color: var(--muted); padding: 5px 12px; }
+    .msg-head { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+
+    .reply-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .reply-bar input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+    }
+
+    .details-pane {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      padding: 18px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+    .details-pane h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .kv { margin-bottom: 10px; }
+    .kv label { display: block; font-size: 11px; color: var(--muted); }
+    .kv div { font-weight: 500; word-break: break-all; margin-top: 2px; }
+    .outbox-card {
+      background: #FAF7F2;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 11.5px;
+      white-space: pre-wrap;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>YUKIES WIEN · Live-Support & DSGVO Konsole</h1>
+      <div style="font-size:11.5px; opacity:0.8;">Servicezeiten: Täglich 8–18 Uhr (Antwortversprechen: innerhalb von 4 Stunden)</div>
+    </div>
+    <div class="agent-selector">
+      <span>Aktive Mitarbeiterin:</span>
+      <select id="active-agent">
+        <option value="Silvia Ragucci">Silvia Ragucci</option>
+        <option value="Barbara Bischof-Fünfrock">Barbara Bischof-Fünfrock</option>
+      </select>
+      <a href="/" style="color:#FAF7F2; margin-left:12px; font-size:12px;">Zurück zum Shop-Simulator &rarr;</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span>Kundengespräche</span>
+        <button class="btn secondary" style="padding:3px 8px; font-size:11px;" onclick="loadConversations()">Aktualisieren</button>
+      </div>
+      <div id="conv-list"></div>
+    </div>
+
+    <div class="chat-pane">
+      <div class="chat-toolbar" id="chat-toolbar" style="display:none;">
+        <div>
+          <strong id="toolbar-title"></strong>
+          <span id="toolbar-status" style="margin-left:10px; font-size:12px; color:var(--muted);"></span>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" onclick="takeOverConversation()">Gespräch live übernehmen</button>
+          <button class="btn secondary" onclick="returnToAi()">An KI-Assistent zurückgeben</button>
+        </div>
+      </div>
+
+      <div class="messages-box" id="messages-box">
+        <div style="margin:auto; color:var(--muted);">Wähle links ein Gespräch aus, um den Verlauf zu sehen oder live zu antworten.</div>
+      </div>
+
+      <form class="reply-bar" id="reply-form" style="display:none;" onsubmit="sendAgentMessage(event)">
+        <input type="text" id="agent-input" placeholder="Nachricht eingeben (als Kundin an KI testen oder als Silvia/Barbara antworten)..." autocomplete="off" />
+        <button type="button" class="btn" style="background:#235789;" onclick="simulateCustomerToAi()">Als Kundin an KI senden (KI-Antwort testen)</button>
+        <button type="submit" class="btn">Als Silvia/Barbara live senden</button>
+      </form>
+    </div>
+
+    <div class="details-pane" id="details-pane">
+      <h3>Kundenprofil & DSGVO (Österreich)</h3>
+      <div id="user-details" style="color:var(--muted);">Kein Gespräch ausgewählt.</div>
+    </div>
+  </div>
+
+  <script>
+    let selectedConvId = null;
+    let activeUserId = null;
+
+    async function loadConversations() {
+      const res = await fetch('/api/admin/conversations');
+      const data = await res.json();
+      const list = document.getElementById('conv-list');
+      if (!data.conversations.length) {
+        list.innerHTML = '<div style="padding:16px; color:var(--muted); font-size:13px;">Noch keine Gespräche vorhanden.</div>';
+        return;
+      }
+      list.innerHTML = data.conversations.map(c => `
+        <div class="conv-item ${c.conversation_id === selectedConvId ? 'selected' : ''}" onclick="selectConversation('${c.conversation_id}')">
+          <div class="conv-top">
+            <span class="conv-name">${escapeHtml(c.customer_name)}</span>
+            <span class="badge ${c.status}">${formatStatus(c.status)}</span>
+          </div>
+          <div class="conv-meta">${escapeHtml(c.customer_email)} · ${c.language.toUpperCase()} (${c.address_form})</div>
+          ${c.escalation_reason ? `<div style="font-size:11px; color:#8A4B08; font-weight:600; margin-bottom:4px;">Grund: ${escapeHtml(c.escalation_reason)}</div>` : ''}
+          <div class="conv-preview">${escapeHtml(c.last_message_preview)}</div>
+        </div>
+      `).join('');
+    }
+
+    function formatStatus(st) {
+      if (st === 'waiting_for_agent') return 'Übergabe angefordert';
+      if (st === 'agent_active') return 'Live übernommen';
+      return 'KI Aktiv';
+    }
+
+    async function selectConversation(convId) {
+      selectedConvId = convId;
+      loadConversations();
+      const res = await fetch(`/api/admin/conversations/${convId}`);
+      if (!res.ok) return;
+      const d = await res.json();
+      activeUserId = d.user.user_id;
+
+      document.getElementById('chat-toolbar').style.display = 'flex';
+      document.getElementById('reply-form').style.display = 'flex';
+      document.getElementById('toolbar-title').textContent = `${d.user.full_name} (${d.user.email})`;
+      document.getElementById('toolbar-status').textContent = `Status: ${formatStatus(d.status)} ${d.assigned_agent ? '· ' + d.assigned_agent : ''}`;
+
+      const msgBox = document.getElementById('messages-box');
+      msgBox.innerHTML = d.messages.map(m => `
+        <div class="msg ${m.sender_type}">
+          <div class="msg-head">${escapeHtml(m.sender_name)} · ${new Date(m.created_at).toLocaleTimeString('de-AT')}</div>
+          <div>${escapeHtml(m.content)}</div>
+        </div>
+      `).join('');
+      msgBox.scrollTop = msgBox.scrollHeight;
+
+      const u = d.user;
+      document.getElementById('user-details').innerHTML = `
+        <div class="kv"><label>Persistente User-ID (DSGVO / DSG)</label><div style="font-family:monospace;">${u.user_id}</div></div>
+        <div class="kv"><label>Name</label><div>${escapeHtml(u.full_name)}</div></div>
+        <div class="kv"><label>E-Mail</label><div>${escapeHtml(u.email)}</div></div>
+        <div class="kv"><label>Shopify-Status</label><div>${u.is_logged_in_shopify ? 'Eingeloggtes Kundenkonto (' + escapeHtml(u.shopify_customer_id) + ')' : 'Gast (Pre-Chat Formular + Einwilligung)'}</div></div>
+        <div class="kv"><label>DSGVO-Einwilligungen</label><div>${u.consents.length} protokolliert (${u.consents[0]?.auth_source || ''})</div></div>
+        <div style="display:flex; gap:8px; margin:14px 0;">
+          <a class="btn secondary" style="text-decoration:none; font-size:11.5px;" href="/api/admin/gdpr/export/${u.user_id}" target="_blank">DSGVO Datenexport (JSON)</a>
+          <button class="btn danger" style="font-size:11.5px;" onclick="eraseUserGdpr('${u.user_id}')">DSGVO Löschung</button>
+        </div>
+        <h3>E-Mail-Benachrichtigungen (office@bacciorganics.com)</h3>
+        ${d.outbox_notifications.length ? d.outbox_notifications.map(n => `<div class="outbox-card"><strong>${escapeHtml(n.subject)}</strong>\n${escapeHtml(n.body)}</div>`).join('') : '<div style="color:var(--muted); font-size:12px;">Keine E-Mail-Übergabe in diesem Gespräch.</div>'}
+      `;
+    }
+
+    async function takeOverConversation() {
+      if (!selectedConvId) return;
+      const agent = document.getElementById('active-agent').value;
+      await fetch(`/api/admin/conversations/${selectedConvId}/takeover`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ agent_name: agent })
+      });
+      await selectConversation(selectedConvId);
+    }
+
+    async function returnToAi() {
+      if (!selectedConvId) return;
+      await fetch(`/api/admin/conversations/${selectedConvId}/return-to-ai`, { method: 'POST' });
+      await selectConversation(selectedConvId);
+    }
+
+    async function sendAgentMessage(e) {
+      e.preventDefault();
+      if (!selectedConvId) return;
+      const input = document.getElementById('agent-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      const agent = document.getElementById('active-agent').value;
+      await fetch(`/api/admin/conversations/${selectedConvId}/message`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ agent_name: agent, content: text })
+      });
+      await selectConversation(selectedConvId);
+    }
+
+    async function simulateCustomerToAi() {
+      if (!selectedConvId || !activeUserId) return;
+      const input = document.getElementById('agent-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      // Ensure AI is active before sending customer message
+      await fetch(`/api/admin/conversations/${selectedConvId}/return-to-ai`, { method: 'POST' });
+      await fetch('/api/chat/message', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          user_id: activeUserId,
+          conversation_id: selectedConvId,
+          message: text
+        })
+      });
+      await selectConversation(selectedConvId);
+    }
+
+    async function eraseUserGdpr(userId) {
+      if (!confirm('Alle personenbezogenen Daten und Chatverläufe dieser User-ID gemäß Art. 17 DSGVO / DSG unwiderruflich löschen?')) return;
+      await fetch(`/api/admin/gdpr/erase/${userId}`, { method: 'DELETE' });
+      selectedConvId = null;
+      document.getElementById('messages-box').innerHTML = '<div style="margin:auto; color:var(--muted);">Benutzerdaten wurden DSGVO-konform gelöscht.</div>';
+      document.getElementById('user-details').innerHTML = 'Gelöscht.';
+      loadConversations();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // Real-time WebSocket updates for Admin Inbox
+    const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${wsProto}://${location.host}/ws/admin`);
+    ws.onmessage = () => {
+      loadConversations();
+      if (selectedConvId) selectConversation(selectedConvId);
+    };
+
+    loadConversations();
+  </script>
+</body>
+</html>

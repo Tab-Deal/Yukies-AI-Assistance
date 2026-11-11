@@ -1,0 +1,11 @@
+[project]
+name = "yukies-ai-assistant"
+version = "1.1.0"
+description = "YUKIES AI Shopping Companion & Customer Support Assistant (Shopify Dawn 7.0)"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
