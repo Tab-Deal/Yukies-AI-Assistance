@@ -1,0 +1,37 @@
+{% comment %}
+  ==============================================================================
+  YUKIES AI Shopping Companion & Support Assistant
+  Shopify Dawn 7.0 Theme Snippet (yukies.at)
+  
+  Integration:
+  1. Copy this file into your theme's 'snippets/' folder as 'yukies-chat-assistant.liquid'.
+  2. In 'layout/theme.liquid', add before the closing </body> tag:
+     {% render 'yukies-chat-assistant' %}
+  ==============================================================================
+{% endcomment %}
+
+<!-- YUKIES Customer Context & Locale for AI Assistant -->
+<script>
+  window.YukiesCustomer = {
+    {% if customer %}
+      id: "cust_{{ customer.id }}",
+      email: {{ customer.email | json }},
+      full_name: {{ customer.name | json }},
+      locale: {{ request.locale.iso_code | slice: 0, 2 | default: 'de' | json }}
+    {% else %}
+      id: null,
+      email: null,
+      full_name: null,
+      locale: {{ request.locale.iso_code | slice: 0, 2 | default: 'de' | json }}
+    {% endif %}
+  };
+</script>
+
+<!-- YUKIES Web Component Bundle (Zero CSS conflicts with Dawn 7.0) -->
+<script src="{{ 'yukies-widget.js' | asset_url }}" async></script>
+
+<!-- Floating Drawer Component -->
+<yukies-chat-widget
+  position="bottom-right"
+  api-base="https://api.yukies.at"
+></yukies-chat-widget>
