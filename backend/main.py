@@ -209,12 +209,15 @@ async def initialize_or_resume_session(
             preferred_language=payload.language,
             address_form="du",
             is_logged_in_shopify=is_shopify_login,
+            newsletter_consent=payload.newsletter_consent,
         )
         db.add(user)
         await db.flush()
     else:
         user.full_name = clean_name or user.full_name
         user.preferred_language = payload.language
+        if payload.newsletter_consent:
+            user.newsletter_consent = True
         if is_shopify_login:
             user.shopify_customer_id = payload.shopify_customer_id.strip()
             user.is_logged_in_shopify = True
@@ -225,6 +228,7 @@ async def initialize_or_resume_session(
         consent_version=settings.CONSENT_VERSION,
         consent_text=payload.consent_text,
         auth_source="shopify_login" if is_shopify_login else "guest_prechat_form",
+        newsletter_consent=payload.newsletter_consent,
         ip_hash=_hash_ip(request),
     )
     db.add(consent)
@@ -239,6 +243,7 @@ async def initialize_or_resume_session(
                     "auth_source": consent.auth_source,
                     "consent_version": settings.CONSENT_VERSION,
                     "language": payload.language,
+                    "newsletter_consent": payload.newsletter_consent,
                 }
             ),
         )
@@ -316,6 +321,7 @@ async def initialize_or_resume_session(
         full_name=user.full_name,
         email=user.email,
         is_logged_in_shopify=user.is_logged_in_shopify,
+        newsletter_consent=user.newsletter_consent,
         language=conversation.language,  # type: ignore[arg-type]
         address_form=conversation.address_form,  # type: ignore[arg-type]
         status=conversation.status,  # type: ignore[arg-type]

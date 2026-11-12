@@ -28,6 +28,7 @@ class User(Base):
     preferred_language: Mapped[str] = mapped_column(String(8), default="de")
     address_form: Mapped[str] = mapped_column(String(8), default="du")
     is_logged_in_shopify: Mapped[bool] = mapped_column(Boolean, default=False)
+    newsletter_consent: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow
@@ -58,6 +59,7 @@ class ConsentRecord(Base):
     auth_source: Mapped[str] = mapped_column(
         String(32), nullable=False
     )  # "shopify_login" | "guest_prechat_form"
+    newsletter_consent: Mapped[bool] = mapped_column(Boolean, default=False)
     ip_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     accepted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 

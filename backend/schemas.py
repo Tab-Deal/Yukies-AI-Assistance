@@ -39,6 +39,10 @@ class SessionInitRequest(BaseModel):
         default=True,
         description="Mandatory explicit consent under Austrian DSG & EU GDPR (6 months storage) before starting chat",
     )
+    newsletter_consent: bool = Field(
+        default=False,
+        description="Optional explicit consent to receive newsletters, new products, and promotions via email",
+    )
     consent_text: str = Field(
         default="Ich stimme zu, dass mein Name, meine E-Mail-Adresse und der Chatverlauf unter einer eindeutigen Benutzerkennung (User-ID) gemäß DSGVO und österreichischem DSG für 6 Monate (180 Tage) gespeichert werden."
     )
@@ -65,6 +69,7 @@ class SessionInitResponse(BaseModel):
     full_name: str
     email: str
     is_logged_in_shopify: bool
+    newsletter_consent: bool = False
     language: SupportedLanguage
     address_form: AddressForm
     status: ConversationStatus

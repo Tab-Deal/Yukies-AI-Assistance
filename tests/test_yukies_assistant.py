@@ -69,7 +69,7 @@ async def test_guest_requires_gdpr_consent_and_creates_persistent_user_id():
         )
         assert bad_res.status_code == 400
 
-        # 2. Guest with consent creates persistent user_id
+        # 2. Guest with consent creates persistent user_id + optional newsletter opt-in
         ok_res = await client.post(
             "/api/chat/session",
             json={
@@ -77,6 +77,7 @@ async def test_guest_requires_gdpr_consent_and_creates_persistent_user_id():
                 "full_name": "Klara Gast",
                 "email": "klara.gast@example.at",
                 "gdpr_consent": True,
+                "newsletter_consent": True,
                 "language": "de",
             },
         )
@@ -84,6 +85,7 @@ async def test_guest_requires_gdpr_consent_and_creates_persistent_user_id():
         session_data = ok_res.json()
         assert session_data["user_id"]
         assert session_data["is_logged_in_shopify"] is False
+        assert session_data["newsletter_consent"] is True
 
         # 3. Ask about Sugar Scrub turning brown
         msg_res = await client.post(

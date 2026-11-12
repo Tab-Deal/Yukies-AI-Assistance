@@ -31,6 +31,8 @@ const UI_STRINGS = {
     emailPlaceholder: "maria@beispiel.at",
     consentLabel:
       "Ich stimme zu, dass mein Name, meine E-Mail-Adresse und der Chatverlauf gemäß der Datenschutzerklärung (DSGVO & österreichisches DSG) für 6 Monate (180 Tage) gespeichert werden. *",
+    marketingConsentLabel:
+      "Ja, ich möchte den YUKIES Newsletter mit Neuigkeiten zu handgefertigter Naturkosmetik, neuen Produkten und Aktionen per E-Mail erhalten (jederzeit widerrufbar).",
     startBtn: "Beratung starten",
     inputPlaceholder: "Frage zu Produkten, Inhaltsstoffen oder Bestellung...",
     sendBtn: "Senden",
@@ -65,6 +67,8 @@ const UI_STRINGS = {
     emailPlaceholder: "emma@example.com",
     consentLabel:
       "I agree that my name, email address, and chat history are stored in accordance with the Privacy Policy (EU GDPR & Austrian DSG) for 6 months (180 days). *",
+    marketingConsentLabel:
+      "Yes, I would like to receive the YUKIES newsletter with handmade skincare news, new products, and special offers via email (unsubscribe anytime).",
     startBtn: "Start Consultation",
     inputPlaceholder: "Ask about products, ingredients, or orders...",
     sendBtn: "Send",
@@ -99,6 +103,8 @@ const UI_STRINGS = {
     emailPlaceholder: "claire@exemple.fr",
     consentLabel:
       "J'accepte que mon nom, e-mail et historique de chat soient conservés selon le RGPD et la loi autrichienne DSG pendant 6 mois (180 jours). *",
+    marketingConsentLabel:
+      "Oui, je souhaite recevoir la newsletter YUKIES avec des actualités sur les cosmétiques naturels, les nouveaux produits et les offres par e-mail (désabonnement possible à tout moment).",
     startBtn: "Commencer la consultation",
     inputPlaceholder: "Posez votre question sur nos produits ou votre commande...",
     sendBtn: "Envoyer",
@@ -132,6 +138,8 @@ const UI_STRINGS = {
     emailPlaceholder: "giulia@esempio.it",
     consentLabel:
       "Acconsento alla memorizzazione di nome, e-mail e cronologia chat secondo il GDPR e la legge austriaca DSG per 6 mesi (180 giorni). *",
+    marketingConsentLabel:
+      "Sì, desidero ricevere la newsletter di YUKIES con le novità sui prodotti, offerte speciali e consigli di bellezza via e-mail (cancellabile in qualsiasi momento).",
     startBtn: "Inizia consulenza",
     inputPlaceholder: "Fai una domanda sui prodotti o sul tuo ordine...",
     sendBtn: "Invia",
@@ -1066,10 +1074,20 @@ class YukiesChatWidget extends HTMLElement {
           display: flex;
           align-items: flex-start;
           gap: 9px;
-          margin: 12px 0 18px 0;
+          margin: 10px 0 6px 0;
           font-size: 11px;
           line-height: 1.45;
           color: var(--yk-muted);
+          cursor: pointer;
+        }
+        .yukies-consent-row.yukies-marketing-row {
+          margin: 6px 0 16px 0;
+          color: var(--yk-text);
+        }
+        .yukies-consent-row input[type="checkbox"] {
+          margin-top: 2px;
+          cursor: pointer;
+          accent-color: var(--yk-primary);
         }
         .yukies-start-btn {
           width: 100%;
@@ -1197,6 +1215,11 @@ class YukiesChatWidget extends HTMLElement {
               <span>${this.escapeHtml(t.consentLabel)}</span>
             </label>
 
+            <label class="yukies-consent-row yukies-marketing-row">
+              <input type="checkbox" id="yk-input-newsletter" />
+              <span>${this.escapeHtml(t.marketingConsentLabel)}</span>
+            </label>
+
             <button type="submit" class="yukies-start-btn">${this.escapeHtml(t.startBtn)}</button>
           </form>
         `
@@ -1247,6 +1270,7 @@ class YukiesChatWidget extends HTMLElement {
         const nameEl = this.shadowRoot.getElementById("yk-input-name");
         const emailEl = this.shadowRoot.getElementById("yk-input-email");
         const consentEl = this.shadowRoot.getElementById("yk-input-consent");
+        const newsletterEl = this.shadowRoot.getElementById("yk-input-newsletter");
         if (!nameEl.value.trim() || !emailEl.value.trim() || !consentEl.checked) return;
 
         await this.initBackendSession({
@@ -1254,6 +1278,7 @@ class YukiesChatWidget extends HTMLElement {
           full_name: nameEl.value.trim(),
           email: emailEl.value.trim(),
           gdpr_consent: true,
+          newsletter_consent: newsletterEl ? Boolean(newsletterEl.checked) : false,
           language: this.lang,
         });
         this.render();

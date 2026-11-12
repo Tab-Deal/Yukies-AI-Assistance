@@ -1,6 +1,6 @@
 from collections.abc import AsyncGenerator
 from typing import Any
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from backend.config import settings
@@ -67,6 +67,25 @@ async def init_db() -> None:
     from backend import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    with engine.connect() as conn:
+        try:
+            conn.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN newsletter_consent BOOLEAN DEFAULT 0"
+                )
+            )
+            conn.commit()
+        except Exception:
+            pass
+        try:
+            conn.execute(
+                text(
+                    "ALTER TABLE consent_records ADD COLUMN newsletter_consent BOOLEAN DEFAULT 0"
+                )
+            )
+            conn.commit()
+        except Exception:
+            pass
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
