@@ -33,6 +33,12 @@ Ein Pflegebalsam in Stiftform aus Bio-Kakaobutter für eine sanfte Bauchmassage,
 
 ## Weitere Fragen
 
+**Gibt es Allergene in den Yukies-Produkten?**
+Folgende Produkte enthalten weder Parfüm noch ätherische Öle und sind somit frei von Allergenen:
+• Für Babys: Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash
+• Für Mama: Shea Coco Butter
+Das Sugar Scrub enthält ein wenig natürliches Parfüm, jedoch keine deklarationspflichtigen Allergene.
+
 **Warum ist mein Sugar Scrub braun geworden?** → 01_produkte/03_sugar_scrub.md
 **Warum schwimmen weiße Stücke im Babyöl?** → 01_produkte/02_babyoel.md
 **Der Stiel meines Tummy Sticks ist abgebrochen.** → 01_produkte/04_tummy_stick.md (übergeben)

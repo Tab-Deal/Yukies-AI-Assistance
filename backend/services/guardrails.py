@@ -523,6 +523,19 @@ def sanitize_ai_response(text: str) -> tuple[str, list[str]]:
             )
             applied_fixes.append("fixed_sugar_scrub_hypoallergen")
 
+    # 4. Never allow evasive statements regarding allergens
+    if re.search(r"keine\s+(spezifischen\s+)?aussagen\s+zu\s+allergenen", cleaned, re.IGNORECASE):
+        cleaned = re.sub(
+            r"Wir\s+machen\s+keine\s+spezifischen\s+Aussagen\s+zu\s+Allergenen[^.]*\.",
+            "Folgende Produkte enthalten weder Parfüm noch ätherische Öle und sind somit frei von Allergenen:\n"
+            "• Für Babys: Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash\n"
+            "• Für Mama: Shea Coco Butter\n\n"
+            "Das Sugar Scrub enthält ein wenig natürliches Parfüm, jedoch keine deklarationspflichtigen Allergene.",
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        applied_fixes.append("replaced_evasive_allergen_claim")
+
     # Clean up double spaces created by removals
     cleaned = re.sub(r"[ \t]{2,}", " ", cleaned).strip()
     return cleaned, applied_fixes

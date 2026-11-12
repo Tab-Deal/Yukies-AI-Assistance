@@ -87,6 +87,13 @@ class YukiesGeminiAssistant:
 - Antworte in der Sprache der Kundin ({language.upper()}). Im Deutschen verwende konsequent die Ansprache "{address_form}".
 - Antworte kurz und präzise: höchstens 3–5 Sätze (außer bei Schritt-für-Schritt-Anleitungen wie der Trockenbürste).
 - Beratungsfragen zu Schwangerschaft, Stillzeit (Body Butter) und Neugeborenen (Babyöl, Tummy Stick) gehören zu deinen Standard-Kompetenzen (trigger_handover = false). Setze trigger_handover NUR auf true, wenn ein echtes [OFFEN] Thema, eine Reklamation, ein Defekt oder der Wunsch nach einem Menschen vorliegt.
+- ALLERGENE (VON SILVIA RAGUCCI FREIGEGEBENE STANDARDANTWORT): Wenn nach Allergenen oder Allergenfreiheit gefragt wird ("gibt es Allergene?", "enthalten eure Produkte Allergene?"), antworte IMMER mit folgendem genauen Wortlaut von Silvia Ragucci:
+  "Folgende Produkte enthalten weder Parfüm noch ätherische Öle und sind somit frei von Allergenen:
+  • Für Babys: Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash
+  • Für Mama: Shea Coco Butter
+
+  Das Sugar Scrub enthält ein wenig natürliches Parfüm, jedoch keine deklarationspflichtigen Allergene."
+  (in der Zielsprache DE, EN, FR oder IT). Behaupte NIEMALS, dass wir keine Aussagen zu Allergenen machen! Setze bei reinen Allergenfragen trigger_handover = false.
 
 --- KUNDEN-KONTEXT ---
 - Name: {customer_name}
@@ -388,6 +395,94 @@ class YukiesGeminiAssistant:
             return (
                 "Das ist kein Fehler: Es handelt sich um kristallisiertes Bio-Kokosöl, was typisch für ein reines Naturprodukt ist. Die Qualität deines Babyöls bleibt vollkommen gleich.",
                 ["yukies-baby-oil"],
+                False,
+                None,
+            )
+
+        # 5b. Allergen / Allergenfreiheit inquiry (von Silvia Ragucci freigegebene Standardantwort)
+        if any(
+            w in lower
+            for w in [
+                "allergen",
+                "allergene",
+                "allergenen",
+                "allergenfrei",
+                "allergie",
+                "allergène",
+                "allergènes",
+                "allergique",
+                "allergeni",
+                "allergico",
+            ]
+        ) and not any(
+            w in lower
+            for w in [
+                "hautreaktion",
+                "ausschlag",
+                "ekzem",
+                "neurodermitis",
+                "rash",
+                "eczema",
+                "réaction",
+                "reazione",
+            ]
+        ):
+            if language == "fr":
+                return (
+                    "Les produits suivants ne contiennent ni parfum ni huiles essentielles et sont donc sans allergènes :\n"
+                    "• Pour bébés : Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash\n"
+                    "• Pour maman : Shea Coco Butter\n\n"
+                    "Le Sugar Scrub contient un peu de parfum naturel, mais aucun allergène soumis à déclaration.",
+                    [
+                        "yukies-tummy-stick",
+                        "yukies-baby-oil",
+                        "yukies-mild-hair-body-wash-150ml",
+                        "yukies-body-butter",
+                    ],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "I seguenti prodotti non contengono né profumo né oli essenziali e sono quindi privi di allergeni:\n"
+                    "• Per neonati: Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash\n"
+                    "• Per la mamma: Shea Coco Butter\n\n"
+                    "Lo Sugar Scrub contiene una piccola quantità di profumo naturale, tuttavia nessun allergene soggetto a dichiarazione obbligatoria.",
+                    [
+                        "yukies-tummy-stick",
+                        "yukies-baby-oil",
+                        "yukies-mild-hair-body-wash-150ml",
+                        "yukies-body-butter",
+                    ],
+                    False,
+                    None,
+                )
+            if language == "en":
+                return (
+                    "The following products contain neither perfume nor essential oils and are therefore free of allergens:\n"
+                    "• For babies: Tummy Stick, Baby Oil Almond-Coconut, Hair & Body Wash\n"
+                    "• For mom: Shea Coco Butter\n\n"
+                    "The Sugar Scrub contains a little natural perfume, but no declarable allergens.",
+                    [
+                        "yukies-tummy-stick",
+                        "yukies-baby-oil",
+                        "yukies-mild-hair-body-wash-150ml",
+                        "yukies-body-butter",
+                    ],
+                    False,
+                    None,
+                )
+            return (
+                "Folgende Produkte enthalten weder Parfüm noch ätherische Öle und sind somit frei von Allergenen:\n"
+                "• Für Babys: Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash\n"
+                "• Für Mama: Shea Coco Butter\n\n"
+                "Das Sugar Scrub enthält ein wenig natürliches Parfüm, jedoch keine deklarationspflichtigen Allergene.",
+                [
+                    "yukies-tummy-stick",
+                    "yukies-baby-oil",
+                    "yukies-mild-hair-body-wash-150ml",
+                    "yukies-body-butter",
+                ],
                 False,
                 None,
             )

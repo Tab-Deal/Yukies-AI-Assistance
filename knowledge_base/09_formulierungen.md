@@ -22,4 +22,11 @@ Freigegeben von Silvia Ragucci (09.11.2026). Höchste Priorität vor allen ander
 - Tummy Stick: „100 % Bio-Kakaobutter“
 
 ## Allergien und Gesundheit
-Keine Allergie- oder Nussaussagen. Auf Nachfrage die Inhaltsstoffe (INCI) nennen und bei Allergien, Hautreaktionen oder Hauterkrankungen eine Ärztin/einen Arzt bzw. die Hebamme empfehlen und an das Team übergeben.
+Allergene / Allergenfreiheit (Standardantwort freigegeben von Silvia Ragucci):
+Folgende Produkte enthalten weder Parfüm noch ätherische Öle und sind somit frei von Allergenen:
+• Für Babys: Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash
+• Für Mama: Shea Coco Butter
+Das Sugar Scrub enthält ein wenig natürliches Parfüm, jedoch keine deklarationspflichtigen Allergene.
+
+Hinweis zu Nüssen: Das Babyöl enthält Bio-Mandelöl (Schalenfrüchte).
+Bei akuten Hautreaktionen, Ausschlag, Neurodermitis oder Ekzemen: Keine Heilversprechen machen, an Ärztin/Arzt bzw. Hebamme verweisen und an das Team übergeben.

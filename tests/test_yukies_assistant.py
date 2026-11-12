@@ -326,3 +326,47 @@ async def test_multilingual_french_and_italian_support():
         assert it_esc["handover_triggered"] is True
         assert "office@bacciorganics.com" in it_esc["reply_message"]["content"]
         assert "trasmetto" in it_esc["reply_message"]["content"].lower()
+
+
+@pytest.mark.asyncio
+async def test_allergen_exact_response_silvia_rule():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        sess = (
+            await client.post(
+                "/api/chat/session",
+                json={
+                    "full_name": "Silvia Tester",
+                    "email": "silvia.test@yukies.at",
+                    "gdpr_consent": True,
+                    "language": "de",
+                },
+            )
+        ).json()
+
+        # Exact question Silvia asked: "gibt es allergene ?"
+        res = (
+            await client.post(
+                "/api/chat/message",
+                json={
+                    "user_id": sess["user_id"],
+                    "conversation_id": sess["conversation_id"],
+                    "message": "gibt es allergene ?",
+                    "language": "de",
+                },
+            )
+        ).json()
+
+        reply = res["reply_message"]["content"]
+        # Verify Silvia's exact words are present:
+        assert "Folgende Produkte enthalten weder Parfüm noch ätherische Öle und sind somit frei von Allergenen:" in reply
+        assert "Tummy Stick, Babyöl Mandel-Kokos, Hair & Body Wash" in reply
+        assert "Shea Coco Butter" in reply
+        assert "Sugar Scrub" in reply
+        assert "keine deklarationspflichtigen Allergene" in reply
+        # Verify no evasive statement
+        assert "keine spezifischen Aussagen" not in reply.lower()
+        # Verify relevant product cards are returned
+        handles = [p["handle"] for p in res["reply_message"]["referenced_products"]]
+        assert "yukies-tummy-stick" in handles
+        assert "yukies-baby-oil" in handles
