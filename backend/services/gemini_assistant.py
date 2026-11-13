@@ -66,7 +66,7 @@ class YukiesGeminiAssistant:
         self,
         *,
         customer_name: str,
-        customer_email: str,
+        customer_email: str | None,
         is_logged_in: bool,
         language: str,
         address_form: str,
@@ -97,8 +97,8 @@ class YukiesGeminiAssistant:
 
 --- KUNDEN-KONTEXT ---
 - Name: {customer_name}
-- E-Mail: {customer_email}
-- Im Shopify-Konto eingeloggt: {"Ja" if is_logged_in else "Nein (Gast mit DSGVO-Einwilligung)"}
+- E-Mail: {customer_email or "nicht angegeben (Gast ohne E-Mail)"}
+- Im Shopify-Konto eingeloggt: {"Ja" if is_logged_in else "Nein (Gast, Nutzungsbedingungen akzeptiert)"}
 
 --- LIVE SHOPIFY PRODUKTKATALOG & PREISE (yukies.at) ---
 {live_catalog_summary}
@@ -653,7 +653,7 @@ class YukiesGeminiAssistant:
         *,
         user_message: str,
         customer_name: str,
-        customer_email: str,
+        customer_email: str | None,
         shopify_customer_id: str | None,
         is_logged_in: bool,
         current_language: str,
@@ -724,7 +724,7 @@ class YukiesGeminiAssistant:
                 shopify_customer_id=shopify_customer_id,
                 order_number=extracted_order,
             )
-            order_context = f"Ergebnis der Live-Bestellabfrage für {customer_email}: {order_lookup_result}"
+            order_context = f"Ergebnis der Live-Bestellabfrage für {customer_email or shopify_customer_id or 'Gast ohne E-Mail'}: {order_lookup_result}"
 
         # 3. Call Google Gemini (gemini-2.5-flash) via google-genai SDK
         client = self._get_client()
