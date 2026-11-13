@@ -73,20 +73,21 @@ class HandoffNotificationService:
         conversation_id: str,
         user_id: str,
         customer_name: str,
-        customer_email: str,
+        customer_email: str | None,
         language: str,
         reason: str,
         summary: str,
         transcript_lines: list[str],
     ) -> dict:
         recipients = [settings.SUPPORT_EMAIL_PRIMARY, settings.SUPPORT_EMAIL_SECONDARY]
-        subject = f"[YUKIES Chat-Übergabe] {customer_name} ({customer_email}) – {reason}"
+        contact_label = customer_email or "keine E-Mail hinterlegt (Gast ohne E-Mail) – Rückmeldung nur über den Live-Chat möglich"
+        subject = f"[YUKIES Chat-Übergabe] {customer_name} ({customer_email or 'ohne E-Mail'}) – {reason}"
         body = (
             f"Neue Kundenanfrage zur Übergabe an Silvia Ragucci & Barbara Bischof-Fünfrock\n"
             f"=========================================================================\n"
             f"Zeitpunkt (UTC): {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n"
             f"Kundin / Kunde:  {customer_name}\n"
-            f"E-Mail:          {customer_email}\n"
+            f"E-Mail:          {contact_label}\n"
             f"User-ID (DSG):   {user_id}\n"
             f"Conversation-ID: {conversation_id}\n"
             f"Sprache:         {language.upper()}\n"

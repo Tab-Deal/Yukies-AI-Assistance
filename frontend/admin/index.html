@@ -271,7 +271,7 @@
             <span class="conv-name">${escapeHtml(c.customer_name)}</span>
             <span class="badge ${c.status}">${formatStatus(c.status)}</span>
           </div>
-          <div class="conv-meta">${escapeHtml(c.customer_email)} · ${c.language.toUpperCase()} (${c.address_form})</div>
+          <div class="conv-meta">${c.customer_email ? escapeHtml(c.customer_email) + ' · ' : 'Gast ohne E-Mail · '}${c.language.toUpperCase()} (${c.address_form})</div>
           ${c.escalation_reason ? `<div style="font-size:11px; color:#8A4B08; font-weight:600; margin-bottom:4px;">Grund: ${escapeHtml(c.escalation_reason)}</div>` : ''}
           <div class="conv-preview">${escapeHtml(c.last_message_preview)}</div>
         </div>
@@ -294,7 +294,7 @@
 
       document.getElementById('chat-toolbar').style.display = 'flex';
       document.getElementById('reply-form').style.display = 'flex';
-      document.getElementById('toolbar-title').textContent = `${d.user.full_name} (${d.user.email})`;
+      document.getElementById('toolbar-title').textContent = d.user.email ? `${d.user.full_name} (${d.user.email})` : d.user.full_name;
       document.getElementById('toolbar-status').textContent = `Status: ${formatStatus(d.status)} ${d.assigned_agent ? '· ' + d.assigned_agent : ''}`;
 
       const msgBox = document.getElementById('messages-box');
@@ -310,7 +310,7 @@
       document.getElementById('user-details').innerHTML = `
         <div class="kv"><label>Persistente User-ID (DSGVO / DSG)</label><div style="font-family:monospace;">${u.user_id}</div></div>
         <div class="kv"><label>Name</label><div>${escapeHtml(u.full_name)}</div></div>
-        <div class="kv"><label>E-Mail</label><div>${escapeHtml(u.email)}</div></div>
+        <div class="kv"><label>E-Mail</label><div>${u.email ? escapeHtml(u.email) : 'Gast ohne E-Mail'}</div></div>
         <div class="kv"><label>Shopify-Status</label><div>${u.is_logged_in_shopify ? 'Eingeloggtes Kundenkonto (' + escapeHtml(u.shopify_customer_id) + ')' : 'Gast (Pre-Chat Formular + Einwilligung)'}</div></div>
         <div class="kv"><label>DSGVO-Einwilligungen</label><div>${u.consents.length} protokolliert (${u.consents[0]?.auth_source || ''})</div></div>
         <div style="display:flex; gap:8px; margin:14px 0;">

@@ -33,18 +33,26 @@ class SessionInitRequest(BaseModel):
         default=None,
         description="Present automatically if customer is logged into yukies.at",
     )
+    user_id: str | None = Field(
+        default=None,
+        description="Present when resuming a previously created guest session (guests no longer submit an email, so the locally cached user_id is the resume key).",
+    )
     full_name: str = Field(..., min_length=1, max_length=200)
-    email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    email: str | None = Field(
+        default=None,
+        pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+        description="Only present for logged-in Shopify customers. Guests no longer submit an email.",
+    )
     gdpr_consent: bool = Field(
         default=True,
-        description="Mandatory explicit consent under Austrian DSG & EU GDPR (6 months storage) before starting chat",
+        description="Mandatory explicit acceptance of the Terms & Privacy Policy (incl. AI-in-training notice) before starting chat",
     )
     newsletter_consent: bool = Field(
         default=False,
         description="Optional explicit consent to receive newsletters, new products, and promotions via email",
     )
     consent_text: str = Field(
-        default="Ich stimme zu, dass mein Name, meine E-Mail-Adresse und der Chatverlauf unter einer eindeutigen Benutzerkennung (User-ID) gemäß DSGVO und österreichischem DSG für 6 Monate (180 Tage) gespeichert werden."
+        default="Ich akzeptiere die Nutzungsbedingungen und die Datenschutzrichtlinie. Dieser Assistent befindet sich in der Trainingsphase: Antworten werden automatisch erzeugt, können Fehler enthalten und sind unverbindlich."
     )
     language: SupportedLanguage = "de"
     conversation_id: str | None = None
@@ -67,7 +75,7 @@ class SessionInitResponse(BaseModel):
     user_id: str
     conversation_id: str
     full_name: str
-    email: str
+    email: str | None = None
     is_logged_in_shopify: bool
     newsletter_consent: bool = False
     language: SupportedLanguage

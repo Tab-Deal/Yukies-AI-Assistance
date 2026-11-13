@@ -23,7 +23,7 @@ class User(Base):
     shopify_customer_id: Mapped[str | None] = mapped_column(
         String(128), unique=True, nullable=True, index=True
     )
-    email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     preferred_language: Mapped[str] = mapped_column(String(8), default="de")
     address_form: Mapped[str] = mapped_column(String(8), default="du")

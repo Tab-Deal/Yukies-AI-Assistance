@@ -261,12 +261,19 @@ class YukiesShopifyClient:
 
     async def lookup_order_status(
         self,
-        user_email: str,
+        user_email: str | None,
         shopify_customer_id: str | None = None,
         order_number: str | None = None,
     ) -> dict:
         """Read-only order lookup strictly verifying user ownership (email or shopify_customer_id)."""
-        norm_email = user_email.strip().lower()
+        if not user_email and not shopify_customer_id:
+            return {
+                "found": False,
+                "authorized": False,
+                "message": "Aus Datenschutzgründen (DSGVO / DSG) kann der Bestellstatus ohne eingeloggtes Shopify-Konto nicht angezeigt werden. Bitte melde dich auf yukies.at an oder wende dich mit deiner Bestellnummer an office@bacciorganics.com.",
+            }
+
+        norm_email = user_email.strip().lower() if user_email else None
         norm_order = None
         if order_number:
             clean_num = order_number.strip().lstrip("#")
@@ -274,7 +281,7 @@ class YukiesShopifyClient:
 
         matched_orders: list[dict] = []
         for ord_key, ord_data in SANDBOX_ORDERS.items():
-            email_matches = ord_data["customer_email"].lower() == norm_email
+            email_matches = bool(norm_email) and ord_data["customer_email"].lower() == norm_email
             id_matches = (
                 bool(shopify_customer_id)
                 and ord_data["shopify_customer_id"] == shopify_customer_id
@@ -288,14 +295,14 @@ class YukiesShopifyClient:
             return {
                 "found": False,
                 "authorized": False,
-                "message": "Aus Datenschutzgründen (DSGVO / DSG) kann der Bestellstatus nur angezeigt werden, wenn die E-Mail-Adresse mit der Bestellung übereinstimmt.",
+                "message": "Aus Datenschutzgründen (DSGVO / DSG) kann der Bestellstatus nur angezeigt werden, wenn das eingeloggte Shopify-Konto mit der Bestellung übereinstimmt.",
             }
 
         if not matched_orders:
             return {
                 "found": False,
                 "authorized": True,
-                "message": f"Unter der E-Mail-Adresse {user_email} wurde aktuell keine passende Bestellung im System gefunden.",
+                "message": "Es wurde aktuell keine passende Bestellung im System gefunden.",
             }
 
         return {

@@ -24,15 +24,13 @@ const UI_STRINGS = {
     statusAgent: "In Chat mit",
     prechatTitle: "Willkommen bei YUKIES",
     prechatIntro:
-      "Trage bitte kurz deinen Namen und deine E-Mail-Adresse ein, damit wir dich persönlich zu unseren Naturkosmetik-Produkten beraten können.",
+      "Trage bitte kurz deinen Namen ein, damit wir dich persönlich zu unseren Naturkosmetik-Produkten beraten können.",
     nameLabel: "Vor- und Nachname *",
     namePlaceholder: "z. B. Maria Berger",
-    emailLabel: "E-Mail-Adresse *",
-    emailPlaceholder: "maria@beispiel.at",
+    trainingNotice:
+      "Dieser Assistent befindet sich in der Trainingsphase. Antworten werden automatisch erzeugt, können Fehler enthalten und sind unverbindlich.",
     consentLabel:
-      "Ich stimme zu, dass mein Name, meine E-Mail-Adresse und der Chatverlauf gemäß der Datenschutzerklärung (DSGVO & österreichisches DSG) für 6 Monate (180 Tage) gespeichert werden. *",
-    marketingConsentLabel:
-      "Ja, ich möchte den YUKIES Newsletter mit Neuigkeiten zu handgefertigter Naturkosmetik, neuen Produkten und Aktionen per E-Mail erhalten (jederzeit widerrufbar).",
+      "Ich akzeptiere die Nutzungsbedingungen und die Datenschutzrichtlinie (DSGVO & österreichisches DSG). Name und Chatverlauf werden für 6 Monate (180 Tage) gespeichert. *",
     startBtn: "Beratung starten",
     inputPlaceholder: "Frage zu Produkten, Inhaltsstoffen oder Bestellung...",
     sendBtn: "Senden",
@@ -60,15 +58,13 @@ const UI_STRINGS = {
     statusAgent: "Connected with",
     prechatTitle: "Welcome to YUKIES",
     prechatIntro:
-      "Please enter your name and email address so we can assist you personally with our handmade skincare products.",
+      "Please enter your name so we can assist you personally with our handmade skincare products.",
     nameLabel: "Full Name *",
     namePlaceholder: "e.g. Emma Miller",
-    emailLabel: "Email Address *",
-    emailPlaceholder: "emma@example.com",
+    trainingNotice:
+      "This assistant is still in its training phase. Replies are generated automatically, may contain errors, and are not binding.",
     consentLabel:
-      "I agree that my name, email address, and chat history are stored in accordance with the Privacy Policy (EU GDPR & Austrian DSG) for 6 months (180 days). *",
-    marketingConsentLabel:
-      "Yes, I would like to receive the YUKIES newsletter with handmade skincare news, new products, and special offers via email (unsubscribe anytime).",
+      "I accept the Terms of Use and Privacy Policy (EU GDPR & Austrian DSG). My name and chat history are stored for 6 months (180 days). *",
     startBtn: "Start Consultation",
     inputPlaceholder: "Ask about products, ingredients, or orders...",
     sendBtn: "Send",
@@ -96,15 +92,13 @@ const UI_STRINGS = {
     statusAgent: "En chat avec",
     prechatTitle: "Bienvenue chez YUKIES",
     prechatIntro:
-      "Veuillez indiquer votre nom et adresse e-mail pour commencer votre consultation personnalisée.",
+      "Veuillez indiquer votre nom pour commencer votre consultation personnalisée.",
     nameLabel: "Nom complet *",
     namePlaceholder: "ex. Claire Martin",
-    emailLabel: "Adresse e-mail *",
-    emailPlaceholder: "claire@exemple.fr",
+    trainingNotice:
+      "Cet assistant est encore en phase d'apprentissage. Les réponses sont générées automatiquement, peuvent contenir des erreurs et ne sont pas contractuelles.",
     consentLabel:
-      "J'accepte que mon nom, e-mail et historique de chat soient conservés selon le RGPD et la loi autrichienne DSG pendant 6 mois (180 jours). *",
-    marketingConsentLabel:
-      "Oui, je souhaite recevoir la newsletter YUKIES avec des actualités sur les cosmétiques naturels, les nouveaux produits et les offres par e-mail (désabonnement possible à tout moment).",
+      "J'accepte les Conditions d'utilisation et la Politique de confidentialité (RGPD & loi autrichienne DSG). Mon nom et l'historique de chat sont conservés pendant 6 mois (180 jours). *",
     startBtn: "Commencer la consultation",
     inputPlaceholder: "Posez votre question sur nos produits ou votre commande...",
     sendBtn: "Envoyer",
@@ -131,15 +125,13 @@ const UI_STRINGS = {
     statusAgent: "In chat con",
     prechatTitle: "Benvenuta da YUKIES",
     prechatIntro:
-      "Inserisci nome ed e-mail per ricevere una consulenza personalizzata sui nostri cosmetici naturali.",
+      "Inserisci il tuo nome per ricevere una consulenza personalizzata sui nostri cosmetici naturali.",
     nameLabel: "Nome e Cognome *",
     namePlaceholder: "es. Giulia Rossi",
-    emailLabel: "Indirizzo E-mail *",
-    emailPlaceholder: "giulia@esempio.it",
+    trainingNotice:
+      "Questo assistente è ancora in fase di addestramento. Le risposte sono generate automaticamente, possono contenere errori e non sono vincolanti.",
     consentLabel:
-      "Acconsento alla memorizzazione di nome, e-mail e cronologia chat secondo il GDPR e la legge austriaca DSG per 6 mesi (180 giorni). *",
-    marketingConsentLabel:
-      "Sì, desidero ricevere la newsletter di YUKIES con le novità sui prodotti, offerte speciali e consigli di bellezza via e-mail (cancellabile in qualsiasi momento).",
+      "Accetto i Termini di utilizzo e l'Informativa sulla privacy (GDPR e legge austriaca DSG). Il mio nome e la cronologia chat vengono conservati per 6 mesi (180 giorni). *",
     startBtn: "Inizia consulenza",
     inputPlaceholder: "Fai una domanda sui prodotti o sul tuo ordine...",
     sendBtn: "Invia",
@@ -316,12 +308,14 @@ class YukiesChatWidget extends HTMLElement {
         language: this.lang,
         conversation_id: this.session ? this.session.conversation_id : null,
       });
-    } else if (this.session && this.session.email && this.session.full_name) {
-      // Resume existing guest session
+    } else if (this.session && this.session.user_id && this.session.full_name) {
+      // Resume existing guest session (guests no longer submit an email,
+      // so the locally cached user_id is the resume key)
       await this.initBackendSession({
         shopify_customer_id: null,
+        user_id: this.session.user_id,
         full_name: this.session.full_name,
-        email: this.session.email,
+        email: this.session.email || null,
         gdpr_consent: true,
         language: this.lang,
         conversation_id: this.session.conversation_id,
@@ -1070,19 +1064,25 @@ class YukiesChatWidget extends HTMLElement {
           font-size: 13.5px;
           outline: none;
         }
+        .yukies-training-notice {
+          margin: 2px 0 14px 0 !important;
+          padding: 9px 11px;
+          background: #F2ECE2;
+          border: 1px solid var(--yk-border);
+          border-radius: 10px;
+          font-size: 11px !important;
+          line-height: 1.45 !important;
+          color: var(--yk-text) !important;
+        }
         .yukies-consent-row {
           display: flex;
           align-items: flex-start;
           gap: 9px;
-          margin: 10px 0 6px 0;
+          margin: 10px 0 16px 0;
           font-size: 11px;
           line-height: 1.45;
           color: var(--yk-muted);
           cursor: pointer;
-        }
-        .yukies-consent-row.yukies-marketing-row {
-          margin: 6px 0 16px 0;
-          color: var(--yk-text);
         }
         .yukies-consent-row input[type="checkbox"] {
           margin-top: 2px;
@@ -1205,19 +1205,11 @@ class YukiesChatWidget extends HTMLElement {
               <input type="text" id="yk-input-name" required placeholder="${this.escapeHtml(t.namePlaceholder)}" />
             </div>
 
-            <div class="yukies-form-group">
-              <label for="yk-input-email">${this.escapeHtml(t.emailLabel)}</label>
-              <input type="email" id="yk-input-email" required placeholder="${this.escapeHtml(t.emailPlaceholder)}" />
-            </div>
+            <p class="yukies-training-notice">${this.escapeHtml(t.trainingNotice)}</p>
 
             <label class="yukies-consent-row">
-              <input type="checkbox" id="yk-input-consent" required checked />
+              <input type="checkbox" id="yk-input-consent" required />
               <span>${this.escapeHtml(t.consentLabel)}</span>
-            </label>
-
-            <label class="yukies-consent-row yukies-marketing-row">
-              <input type="checkbox" id="yk-input-newsletter" />
-              <span>${this.escapeHtml(t.marketingConsentLabel)}</span>
             </label>
 
             <button type="submit" class="yukies-start-btn">${this.escapeHtml(t.startBtn)}</button>
@@ -1268,17 +1260,14 @@ class YukiesChatWidget extends HTMLElement {
       prechatForm.onsubmit = async (e) => {
         e.preventDefault();
         const nameEl = this.shadowRoot.getElementById("yk-input-name");
-        const emailEl = this.shadowRoot.getElementById("yk-input-email");
         const consentEl = this.shadowRoot.getElementById("yk-input-consent");
-        const newsletterEl = this.shadowRoot.getElementById("yk-input-newsletter");
-        if (!nameEl.value.trim() || !emailEl.value.trim() || !consentEl.checked) return;
+        if (!nameEl.value.trim() || !consentEl.checked) return;
 
         await this.initBackendSession({
           shopify_customer_id: null,
           full_name: nameEl.value.trim(),
-          email: emailEl.value.trim(),
+          email: null,
           gdpr_consent: true,
-          newsletter_consent: newsletterEl ? Boolean(newsletterEl.checked) : false,
           language: this.lang,
         });
         this.render();

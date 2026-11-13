@@ -182,10 +182,10 @@ async def initialize_or_resume_session(
     if not payload.gdpr_consent:
         raise HTTPException(
             status_code=400,
-            detail="Vor Beginn des Chats ist die ausdrückliche Zustimmung zur 6-monatigen Datenspeicherung gemäß DSGVO / österreichischem DSG erforderlich.",
+            detail="Vor Beginn des Chats ist die ausdrückliche Annahme der Nutzungsbedingungen und Datenschutzrichtlinie erforderlich.",
         )
 
-    norm_email = str(payload.email).strip().lower()
+    norm_email = str(payload.email).strip().lower() if payload.email else None
     clean_name = payload.full_name.strip()
 
     user: User | None = None
@@ -195,8 +195,14 @@ async def initialize_or_resume_session(
         )
         user = (await db.execute(stmt)).scalar_one_or_none()
 
-    if user is None:
+    if user is None and norm_email:
         stmt = select(User).where(User.email == norm_email)
+        user = (await db.execute(stmt)).scalar_one_or_none()
+
+    if user is None and payload.user_id:
+        # Guests no longer submit an email, so a resumed session is matched by
+        # the locally cached user_id instead (same trust level as conversation_id below).
+        stmt = select(User).where(User.id == payload.user_id)
         user = (await db.execute(stmt)).scalar_one_or_none()
 
     if user is None:
@@ -235,7 +241,7 @@ async def initialize_or_resume_session(
 
     db.add(
         AuditLog(
-            actor=user.email,
+            actor=user.email or f"guest:{user.id[:8]}",
             action="user_session_initialized",
             target_user_id=user.id,
             details_json=json.dumps(
@@ -433,8 +439,9 @@ async def send_customer_message(
         conversation.escalation_reason = (
             turn.handover_reason or "Übergabe an das YUKIES Team"
         )
+        contact_suffix = f" ({user.email})" if user.email else ""
         conversation.ai_summary = (
-            f"Kundin/Kunde {user.full_name} ({user.email}): {cust_msg.content[:220]}"
+            f"Kundin/Kunde {user.full_name}{contact_suffix}: {cust_msg.content[:220]}"
         )
         transcript_lines = [
             f"[{m.sender_name}]: {m.content}" for m in conversation.messages
