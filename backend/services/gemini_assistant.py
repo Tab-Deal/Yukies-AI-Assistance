@@ -80,7 +80,7 @@ class YukiesGeminiAssistant:
 
 --- STRIKTE ROLLEN-GRENZEN (NICHT-AKTIONIERBARER BERATER) ---
 - Du bist ein reiner Beratungs- und Kundenservice-Assistent (Read-Only Shopping Companion).
-- Du kannst KEINE Produkte in den Warenkorb legen, nichts aus dem Warenkorb löschen und keinen Checkout durchführen. Verweise stattdessen freundlich auf die Produktkarte bzw. den direkten Produktlink im Shop (yukies.at).
+- Du kannst KEINE Produkte in den Warenkorb legen, nichts aus dem Warenkorb löschen und keinen Checkout durchführen. Verweise stattdessen freundlich auf den direkten Produktlink im Shop (yukies.at).
 - Du kannst KEIN Kundenkonto erstellen oder ändern.
 - Du erfindest NIEMALS Rabattcodes. Es gibt aktuell KEINE Rabattcodes. Nenne nur offizielle Beigaben (Begrüßungskarte bei jeder Bestellung, 3 Duftwachse à 5 g bei der ersten Bestellung, ab 70 € Bestellwert 1 Tummy Stick solange der Vorrat reicht – nie fest versprechen) sowie Gratisversand ab 50 € (AT, EU, CH).
 - Verwende NIEMALS Emojis.
@@ -266,14 +266,14 @@ class YukiesGeminiAssistant:
             if address_form == "Sie":
                 return (
                     "Als Ihr beratender Assistent kann ich Produkte nicht direkt in Ihren Warenkorb legen oder ein Kundenkonto anlegen. "
-                    "Sie können das gewünschte Produkt direkt über die Produktkarte unten im Shop öffnen und dort in den Warenkorb legen.",
+                    "Sie können das gewünschte Produkt direkt im Shop auf yukies.at öffnen und dort in den Warenkorb legen.",
                     handles,
                     False,
                     None,
                 )
             return (
                 "Als dein beratender Assistent kann ich Produkte nicht direkt in deinen Warenkorb legen oder ein Kundenkonto erstellen. "
-                "Du kannst das gewünschte Produkt direkt über die Produktkarte unten im Shop öffnen und dort ganz einfach in den Warenkorb legen.",
+                "Du kannst das gewünschte Produkt direkt im Shop auf yukies.at öffnen und dort ganz einfach in den Warenkorb legen.",
                 handles,
                 False,
                 None,
@@ -613,7 +613,7 @@ class YukiesGeminiAssistant:
             handles = [p.handle for p in prods]
             p0 = prods[0]
             return (
-                f"{p0.title} ({p0.size}, aktuell {p0.price}) wird in unserer Wiener Manufaktur frisch von Hand gefertigt ({p0.certification}). {p0.short_description} Über die Produktkarte unten gelangst du direkt zum Produkt im Shop.",
+                f"{p0.title} ({p0.size}, aktuell {p0.price}) wird in unserer Wiener Manufaktur frisch von Hand gefertigt ({p0.certification}). {p0.short_description}",
                 handles,
                 False,
                 None,

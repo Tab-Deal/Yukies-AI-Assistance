@@ -35,6 +35,8 @@ const UI_STRINGS = {
     inputPlaceholder: "Frage zu Produkten, Inhaltsstoffen oder Bestellung...",
     sendBtn: "Senden",
     viewProductBtn: "Auf yukies.at ansehen",
+    showProductsPrompt: "Möchtest du passende Produkte dazu ansehen?",
+    hideProductsPrompt: "Produkte ausblenden",
     inStock: "Vorrätig",
     outOfStock: "Ausverkauft",
     loggedInBadge: "Kundin:",
@@ -69,6 +71,8 @@ const UI_STRINGS = {
     inputPlaceholder: "Ask about products, ingredients, or orders...",
     sendBtn: "Send",
     viewProductBtn: "View on yukies.at",
+    showProductsPrompt: "Would you like to see recommended products?",
+    hideProductsPrompt: "Hide products",
     inStock: "In Stock",
     outOfStock: "Out of Stock",
     loggedInBadge: "Customer:",
@@ -103,6 +107,8 @@ const UI_STRINGS = {
     inputPlaceholder: "Posez votre question sur nos produits ou votre commande...",
     sendBtn: "Envoyer",
     viewProductBtn: "Voir sur yukies.at",
+    showProductsPrompt: "Souhaitez-vous voir les produits recommandés ?",
+    hideProductsPrompt: "Masquer les produits",
     inStock: "En stock",
     outOfStock: "Épuisé",
     loggedInBadge: "Cliente :",
@@ -136,6 +142,8 @@ const UI_STRINGS = {
     inputPlaceholder: "Fai una domanda sui prodotti o sul tuo ordine...",
     sendBtn: "Invia",
     viewProductBtn: "Vedi su yukies.at",
+    showProductsPrompt: "Desideri vedere i prodotti consigliati?",
+    hideProductsPrompt: "Nascondi prodotti",
     inStock: "Disponibile",
     outOfStock: "Esaurito",
     loggedInBadge: "Cliente:",
@@ -168,6 +176,7 @@ class YukiesChatWidget extends HTMLElement {
     this.ws = null;
     this.isSending = false;
     this.unreadCount = 0;
+    this.expandedProducts = new Set();
 
     // Load persistent state from localStorage
     this.state = this.loadPersistentState();
@@ -521,39 +530,66 @@ class YukiesChatWidget extends HTMLElement {
     return t.statusAi;
   }
 
-  renderProductCards(cards, t) {
+  renderProductCards(message, t) {
+    if (!message) return "";
+    const cards = Array.isArray(message) ? message : (message.referenced_products || []);
     if (!cards || !cards.length) return "";
+
+    const msgId = message.id || message.created_at || "msg_default";
+    const isExpanded = Boolean(this.expandedProducts && this.expandedProducts.has(msgId));
+    const count = cards.length;
+
     return `
-      <div class="yukies-product-cards">
-        ${cards
-          .map(
-            (p) => `
-          <div class="yukies-product-card">
-            <div class="yukies-product-top">
-              <div class="yukies-product-meta">
-                <span class="yukies-product-cert">${this.escapeHtml(p.certification || "COSMOS ORGANIC")}</span>
-                <span class="yukies-product-title">${this.escapeHtml(p.title)}</span>
-                <span class="yukies-product-size">${this.escapeHtml(p.size)}</span>
+      <div class="yukies-product-reco-wrap">
+        <button
+          type="button"
+          class="yukies-show-products-btn ${isExpanded ? "expanded" : ""}"
+          data-msg-id="${this.escapeHtml(msgId)}"
+          aria-expanded="${isExpanded ? "true" : "false"}"
+        >
+          <span>${isExpanded ? t.hideProductsPrompt : `${t.showProductsPrompt} (${count})`}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+
+        ${
+          isExpanded
+            ? `
+          <div class="yukies-product-cards">
+            ${cards
+              .map(
+                (p) => `
+              <div class="yukies-product-card">
+                <div class="yukies-product-top">
+                  <div class="yukies-product-meta">
+                    <span class="yukies-product-cert">${this.escapeHtml(p.certification || "COSMOS ORGANIC")}</span>
+                    <span class="yukies-product-title">${this.escapeHtml(p.title)}</span>
+                    <span class="yukies-product-size">${this.escapeHtml(p.size)}</span>
+                  </div>
+                  <div class="yukies-product-pricing">
+                    ${p.compare_at_price ? `<span class="yukies-price-compare">${this.escapeHtml(p.compare_at_price)}</span>` : ""}
+                    <span class="yukies-price-val">${this.escapeHtml(p.price)}</span>
+                    <span class="yukies-stock-badge ${p.available ? "in-stock" : "out-stock"}">
+                      ${p.available ? t.inStock : t.outOfStock}
+                    </span>
+                  </div>
+                </div>
+                <p class="yukies-product-desc">${this.escapeHtml(p.short_description)}</p>
+                <a class="yukies-product-btn" href="${this.escapeHtml(p.product_url)}" target="_blank" rel="noopener noreferrer">
+                  <span>${t.viewProductBtn}</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                  </svg>
+                </a>
               </div>
-              <div class="yukies-product-pricing">
-                ${p.compare_at_price ? `<span class="yukies-price-compare">${this.escapeHtml(p.compare_at_price)}</span>` : ""}
-                <span class="yukies-price-val">${this.escapeHtml(p.price)}</span>
-                <span class="yukies-stock-badge ${p.available ? "in-stock" : "out-stock"}">
-                  ${p.available ? t.inStock : t.outOfStock}
-                </span>
-              </div>
-            </div>
-            <p class="yukies-product-desc">${this.escapeHtml(p.short_description)}</p>
-            <a class="yukies-product-btn" href="${this.escapeHtml(p.product_url)}" target="_blank" rel="noopener noreferrer">
-              <span>${t.viewProductBtn}</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M7 17L17 7M17 7H7M17 7V17"/>
-              </svg>
-            </a>
+            `
+              )
+              .join("")}
           </div>
         `
-          )
-          .join("")}
+            : ""
+        }
       </div>
     `;
   }
@@ -859,8 +895,35 @@ class YukiesChatWidget extends HTMLElement {
         }
 
         /* ------------------------------------------------------------- */
-        /* Product Cards inside Chat                                     */
+        /* On-Demand Product Recommendations                             */
         /* ------------------------------------------------------------- */
+        .yukies-product-reco-wrap {
+          margin-top: 10px;
+        }
+        .yukies-show-products-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: #FAF7F2;
+          border: 1px solid var(--yk-border);
+          border-radius: 999px;
+          font-size: 11.5px;
+          font-weight: 500;
+          color: var(--yk-primary);
+          cursor: pointer;
+          transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .yukies-show-products-btn:hover {
+          background: #EDE5D8;
+          border-color: #D8D0C3;
+        }
+        .yukies-show-products-btn svg {
+          transition: transform 0.2s ease;
+        }
+        .yukies-show-products-btn.expanded svg {
+          transform: rotate(180deg);
+        }
         .yukies-product-cards {
           display: flex;
           flex-direction: column;
@@ -1157,7 +1220,7 @@ class YukiesChatWidget extends HTMLElement {
                     : ""
                 }
                 <div>${this.escapeHtml(m.content)}</div>
-                ${this.renderProductCards(m.referenced_products, t)}
+                ${this.renderProductCards(m, t)}
               </div>
             `
               )
@@ -1295,6 +1358,24 @@ class YukiesChatWidget extends HTMLElement {
       chip.onclick = () => {
         const prompt = chip.getAttribute("data-prompt");
         if (prompt) this.sendMessage(prompt);
+      };
+    });
+
+    // Toggle on-demand product recommendations
+    const prodToggleBtns = this.shadowRoot.querySelectorAll(".yukies-show-products-btn");
+    prodToggleBtns.forEach((btn) => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const msgId = btn.getAttribute("data-msg-id");
+        if (!msgId) return;
+        if (this.expandedProducts.has(msgId)) {
+          this.expandedProducts.delete(msgId);
+        } else {
+          this.expandedProducts.add(msgId);
+        }
+        this.render();
+        this.bindEvents();
+        this.scrollToBottom();
       };
     });
   }
