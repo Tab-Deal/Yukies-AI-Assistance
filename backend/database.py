@@ -86,6 +86,55 @@ async def init_db() -> None:
             conn.commit()
         except Exception:
             pass
+        # Ensure users.email is nullable for guest sessions in SQLite
+        if "sqlite" in settings.DATABASE_URL:
+            try:
+                table_info = conn.execute(text("PRAGMA table_info(users)")).fetchall()
+                email_cols = [col for col in table_info if col[1] == "email"]
+                if email_cols and email_cols[0][3] == 1:
+                    conn.execute(text("PRAGMA foreign_keys=off;"))
+                    conn.execute(text("ALTER TABLE users RENAME TO _users_old;"))
+                    conn.execute(
+                        text(
+                            """
+                    CREATE TABLE users (
+                        id VARCHAR(36) NOT NULL PRIMARY KEY, 
+                        shopify_customer_id VARCHAR(128) UNIQUE, 
+                        email VARCHAR(255), 
+                        full_name VARCHAR(255) NOT NULL, 
+                        preferred_language VARCHAR(8) NOT NULL, 
+                        address_form VARCHAR(8) NOT NULL, 
+                        is_logged_in_shopify BOOLEAN NOT NULL, 
+                        created_at DATETIME NOT NULL, 
+                        updated_at DATETIME NOT NULL, 
+                        newsletter_consent BOOLEAN DEFAULT 0
+                    );
+                    """
+                        )
+                    )
+                    conn.execute(
+                        text(
+                            """
+                    INSERT INTO users (id, shopify_customer_id, email, full_name, preferred_language, address_form, is_logged_in_shopify, created_at, updated_at, newsletter_consent)
+                    SELECT id, shopify_customer_id, email, full_name, preferred_language, address_form, is_logged_in_shopify, created_at, updated_at, newsletter_consent FROM _users_old;
+                    """
+                        )
+                    )
+                    conn.execute(text("DROP TABLE _users_old;"))
+                    conn.execute(
+                        text(
+                            "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_shopify_customer_id ON users (shopify_customer_id);"
+                        )
+                    )
+                    conn.execute(
+                        text(
+                            "CREATE INDEX IF NOT EXISTS ix_users_email ON users (email);"
+                        )
+                    )
+                    conn.execute(text("PRAGMA foreign_keys=on;"))
+                    conn.commit()
+            except Exception:
+                pass
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
