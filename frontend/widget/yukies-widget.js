@@ -14,11 +14,15 @@
 const YUKIES_STORAGE_KEY = "yukies_chat_state_v1";
 const RETENTION_DAYS = 180;
 
+// Embedded Official YUKIES Mascot Bird Logo (yukies_vogel_dunkelblau)
+const YUKIES_MASCOT_DATA_URI = "data:image/png;base64,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";
+
 const UI_STRINGS = {
   de: {
     brandName: "YUKIES WIEN",
     brandSubtitle: "Naturkosmetik Manufaktur",
     launcherText: "YUKIES Beratung",
+    proactiveGreeting: "Brauchst du Beratung? YUKIES ist für dich da!",
     statusAi: "KI-Beraterin aktiv",
     statusWaiting: "An Silvia & Barbara übergeben (Antwort < 4 Std.)",
     statusAgent: "In Chat mit",
@@ -55,6 +59,7 @@ const UI_STRINGS = {
     brandName: "YUKIES VIENNA",
     brandSubtitle: "Natural Cosmetics Manufactory",
     launcherText: "YUKIES Advisor",
+    proactiveGreeting: "Need any guidance? YUKIES is here for you!",
     statusAi: "AI Shopping Advisor active",
     statusWaiting: "Forwarded to our team (Reply < 4 hrs)",
     statusAgent: "Connected with",
@@ -91,6 +96,8 @@ const UI_STRINGS = {
     brandName: "YUKIES VIENNE",
     brandSubtitle: "Manufacture de Cosmétiques Naturels",
     launcherText: "Conseil YUKIES",
+    proactiveGreeting: "Besoin de conseils ? YUKIES est là pour vous !",
+
     statusAi: "Conseillère IA active",
     statusWaiting: "Transmis à notre équipe (Réponse < 4h)",
     statusAgent: "En chat avec",
@@ -126,6 +133,7 @@ const UI_STRINGS = {
     brandName: "YUKIES VIENNA",
     brandSubtitle: "Manifattura Cosmetica Naturale",
     launcherText: "Consulenza YUKIES",
+    proactiveGreeting: "Hai bisogno di aiuto? YUKIES è qui per te!",
     statusAi: "Assistente IA attiva",
     statusWaiting: "Inoltrato al team (Risposta < 4 ore)",
     statusAgent: "In chat con",
@@ -177,6 +185,8 @@ class YukiesChatWidget extends HTMLElement {
     this.isSending = false;
     this.unreadCount = 0;
     this.expandedProducts = new Set();
+    this.showProactive = false;
+    this.proactiveTimer = null;
 
     // Load persistent state from localStorage
     this.state = this.loadPersistentState();
@@ -189,6 +199,17 @@ class YukiesChatWidget extends HTMLElement {
   connectedCallback() {
     this.isInline = this.getAttribute("mode") === "inline";
     if (this.isInline) this.isOpen = true;
+
+    // 5-second proactive greeting popup for visitors
+    if (!this.isInline && !this.isOpen && !sessionStorage.getItem("yukies_proactive_dismissed")) {
+      this.proactiveTimer = setTimeout(() => {
+        if (!this.isOpen && !this.isInline && !sessionStorage.getItem("yukies_proactive_dismissed")) {
+          this.showProactive = true;
+          this.render();
+          this.bindEvents();
+        }
+      }, 5000);
+    }
 
     // If persistent session is stored, hydrate immediately
     if (this.state.session && this.state.session.user_id) {
@@ -213,6 +234,10 @@ class YukiesChatWidget extends HTMLElement {
   }
 
   disconnectedCallback() {
+    if (this.proactiveTimer) {
+      clearTimeout(this.proactiveTimer);
+      this.proactiveTimer = null;
+    }
     if (this.ws) {
       this.ws.close();
       this.ws = null;
@@ -485,6 +510,12 @@ class YukiesChatWidget extends HTMLElement {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
       this.unreadCount = 0;
+      this.showProactive = false;
+      sessionStorage.setItem("yukies_proactive_dismissed", "true");
+      if (this.proactiveTimer) {
+        clearTimeout(this.proactiveTimer);
+        this.proactiveTimer = null;
+      }
     }
     this.savePersistentState();
     this.render();
@@ -622,6 +653,9 @@ class YukiesChatWidget extends HTMLElement {
         /* ------------------------------------------------------------- */
         /* Floating Launcher Button (Dawn 7.0 embedded)                  */
         /* ------------------------------------------------------------- */
+        /* ------------------------------------------------------------- */
+        /* Floating Circular Launcher Button (Only Logo)                  */
+        /* ------------------------------------------------------------- */
         .yukies-launcher-bubble {
           position: fixed;
           ${this.position === "bottom-left" ? "left: 24px;" : "right: 24px;"}
@@ -629,52 +663,136 @@ class YukiesChatWidget extends HTMLElement {
           z-index: 2147483640;
           display: ${this.isInline ? "none" : "flex"};
           align-items: center;
-          gap: 10px;
-          background: var(--yk-primary);
-          color: #FAF7F2;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          padding: 13px 20px;
-          border-radius: 999px;
+          justify-content: center;
+          width: 62px;
+          height: 62px;
+          border-radius: 50%;
+          background: #FAF7F2;
+          border: 1.5px solid #232738;
           cursor: pointer;
-          box-shadow: 0 10px 30px rgba(46, 59, 50, 0.28);
-          font-size: 13.5px;
-          font-weight: 500;
-          letter-spacing: 0.02em;
-          transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+          box-shadow: 0 8px 24px rgba(29, 35, 56, 0.18), 0 2px 6px rgba(29, 35, 56, 0.08);
+          padding: 0;
+          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
         }
         .yukies-launcher-bubble:hover {
-          transform: translateY(-2px);
-          background: var(--yk-primary-hover);
-          box-shadow: 0 14px 34px rgba(46, 59, 50, 0.34);
+          transform: scale(1.08) translateY(-2px);
+          box-shadow: 0 12px 28px rgba(29, 35, 56, 0.24), 0 4px 10px rgba(29, 35, 56, 0.12);
+          border-color: #1a1e2c;
+        }
+        .yukies-launcher-bubble:active {
+          transform: scale(0.96);
+        }
+        .yukies-launcher-mascot {
+          width: 38px;
+          height: 38px;
+          object-fit: contain;
+          pointer-events: none;
+          user-select: none;
         }
         .yukies-pulse-dot {
-          width: 8px;
-          height: 8px;
+          position: absolute;
+          top: 3px;
+          right: 3px;
+          width: 11px;
+          height: 11px;
           border-radius: 50%;
-          background: #8ED1A1;
-          box-shadow: 0 0 0 0 rgba(142, 209, 161, 0.7);
+          background: #48BB78;
+          border: 2px solid #FAF7F2;
+          box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
           animation: yk-pulse 2s infinite;
         }
         @keyframes yk-pulse {
-          0% { box-shadow: 0 0 0 0 rgba(142, 209, 161, 0.7); }
-          70% { box-shadow: 0 0 0 7px rgba(142, 209, 161, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(142, 209, 161, 0); }
+          0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+          70% { box-shadow: 0 0 0 6px rgba(72, 187, 120, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
         }
         .yukies-unread-badge {
           position: absolute;
           top: -4px;
           right: -4px;
-          background: #C84630;
-          color: #FFF;
-          font-size: 10px;
-          font-weight: bold;
-          min-width: 18px;
-          height: 18px;
+          background: #D9534F;
+          color: #FFFFFF;
+          font-size: 11px;
+          font-weight: 700;
+          line-height: 1;
+          padding: 3px 6px;
           border-radius: 999px;
+          border: 2px solid #FAF7F2;
+        }
+
+        /* ------------------------------------------------------------- */
+        /* Proactive 5-Second Greeting Speech Bubble                     */
+        /* ------------------------------------------------------------- */
+        .yukies-proactive-popup {
+          position: fixed;
+          ${this.position === "bottom-left" ? "left: 24px;" : "right: 24px;"}
+          bottom: 96px;
+          z-index: 2147483641;
+          max-width: 270px;
+          background: #FAF7F2;
+          border: 1.5px solid #232738;
+          border-radius: 16px;
+          box-shadow: 0 12px 30px rgba(29, 35, 56, 0.2), 0 2px 8px rgba(29, 35, 56, 0.08);
+          padding: 12px 14px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          animation: yk-popup-bounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .yukies-proactive-popup:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 16px 36px rgba(29, 35, 56, 0.24);
+        }
+        .yukies-proactive-popup::after {
+          content: "";
+          position: absolute;
+          bottom: -9px;
+          ${this.position === "bottom-left" ? "left: 24px;" : "right: 24px;"}
+          width: 0;
+          height: 0;
+          border-left: 8px solid transparent;
+          border-right: 8px solid transparent;
+          border-top: 9px solid #232738;
+        }
+        @keyframes yk-popup-bounce {
+          0% { opacity: 0; transform: translateY(14px) scale(0.9); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .yukies-proactive-close {
+          position: absolute;
+          top: 6px;
+          right: 8px;
+          background: transparent;
+          border: none;
+          font-size: 16px;
+          line-height: 1;
+          color: #718096;
+          cursor: pointer;
+          padding: 2px 5px;
+          border-radius: 50%;
+        }
+        .yukies-proactive-close:hover {
+          color: #232738;
+          background: rgba(35, 39, 56, 0.08);
+        }
+        .yukies-proactive-content {
           display: flex;
           align-items: center;
-          justify-content: center;
-          border: 2px solid #FAF7F2;
+          gap: 10px;
+          padding-right: 14px;
+        }
+        .yukies-proactive-avatar {
+          width: 26px;
+          height: 26px;
+          object-fit: contain;
+          flex-shrink: 0;
+        }
+        .yukies-proactive-text {
+          font-size: 13px;
+          font-weight: 500;
+          line-height: 1.4;
+          color: #232738;
         }
 
         /* ------------------------------------------------------------- */
@@ -751,6 +869,16 @@ class YukiesChatWidget extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 10px;
+        }
+        .yukies-brand-avatar {
+          width: 32px;
+          height: 32px;
+          object-fit: contain;
+          background: #FAF7F2;
+          border-radius: 50%;
+          padding: 2px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          flex-shrink: 0;
         }
         .yukies-brand-title {
           font-size: 14px;
@@ -1165,10 +1293,25 @@ class YukiesChatWidget extends HTMLElement {
         }
       </style>
 
-      <!-- Floating Launcher Button -->
-      <button class="yukies-launcher-bubble" id="yk-launcher">
+      <!-- Proactive Greeting Popup -->
+      ${
+        this.showProactive && !this.isOpen && !this.isInline
+          ? `
+        <div class="yukies-proactive-popup" id="yk-proactive-popup" role="status">
+          <button class="yukies-proactive-close" id="yk-proactive-close" title="${this.escapeHtml(t.closeBtn)}" aria-label="${this.escapeHtml(t.closeBtn)}">&times;</button>
+          <div class="yukies-proactive-content">
+            <img src="${YUKIES_MASCOT_DATA_URI}" class="yukies-proactive-avatar" alt="YUKIES" />
+            <div class="yukies-proactive-text">${this.escapeHtml(t.proactiveGreeting)}</div>
+          </div>
+        </div>
+      `
+          : ""
+      }
+
+      <!-- Floating Circular Launcher Button (Only Logo) -->
+      <button class="yukies-launcher-bubble" id="yk-launcher" aria-label="YUKIES Chat" title="YUKIES">
+        <img src="${YUKIES_MASCOT_DATA_URI}" class="yukies-launcher-mascot" alt="YUKIES" />
         <span class="yukies-pulse-dot"></span>
-        <span>${this.escapeHtml(t.launcherText)}</span>
         ${this.unreadCount > 0 ? `<span class="yukies-unread-badge">${this.unreadCount}</span>` : ""}
       </button>
 
@@ -1176,6 +1319,7 @@ class YukiesChatWidget extends HTMLElement {
       <div class="yukies-drawer" role="dialog" aria-label="YUKIES Chat">
         <div class="yukies-header">
           <div class="yukies-header-brand">
+            <img src="${YUKIES_MASCOT_DATA_URI}" class="yukies-brand-avatar" alt="YUKIES Mascot" />
             <div>
               <div class="yukies-brand-title">${this.escapeHtml(t.brandName)}</div>
               <div class="yukies-brand-sub">${this.renderStatusBadge(t)}</div>
@@ -1284,6 +1428,27 @@ class YukiesChatWidget extends HTMLElement {
   }
 
   bindEvents() {
+    // Proactive greeting popup events
+    const proactivePopup = this.shadowRoot.getElementById("yk-proactive-popup");
+    if (proactivePopup) {
+      proactivePopup.onclick = (e) => {
+        if (e.target && e.target.id === "yk-proactive-close") return;
+        this.showProactive = false;
+        sessionStorage.setItem("yukies_proactive_dismissed", "true");
+        this.toggleOpen();
+      };
+    }
+    const proactiveClose = this.shadowRoot.getElementById("yk-proactive-close");
+    if (proactiveClose) {
+      proactiveClose.onclick = (e) => {
+        e.stopPropagation();
+        this.showProactive = false;
+        sessionStorage.setItem("yukies_proactive_dismissed", "true");
+        this.render();
+        this.bindEvents();
+      };
+    }
+
     const launcher = this.shadowRoot.getElementById("yk-launcher");
     if (launcher) launcher.onclick = () => this.toggleOpen();
 
