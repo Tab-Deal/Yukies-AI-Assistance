@@ -26,8 +26,10 @@
     {% endif %}
   };
 
+  /* Real product images from Shopify catalog */
+  {% assign yukies_handles = "yukies-body-butter,yukies-baby-oil,yukies-sugarscrub,yukies-tummy-stick,yukies-mild-hair-body-wash-150ml,burste,geschenksbox" | split: "," %}
   window.YukiesProductCatalog = {
-    {% for handle in "yukies-body-butter,yukies-baby-oil,yukies-sugarscrub,yukies-tummy-stick,yukies-mild-hair-body-wash-150ml,burste,geschenksbox" | split: "," %}
+    {% for handle in yukies_handles %}
       {% assign p_item = all_products[handle] %}
       {% if p_item and p_item.featured_image %}
         {{ handle | json }}: {
