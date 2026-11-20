@@ -11,6 +11,11 @@ class Base(DeclarativeBase):
 
 
 def _normalize_sync_url(url: str) -> str:
+    if "sqlite" in url:
+        db_path_str = url.split(":///")[-1]
+        if db_path_str and db_path_str != ":memory:":
+            from pathlib import Path
+            Path(db_path_str).resolve().parent.mkdir(parents=True, exist_ok=True)
     return url.replace("sqlite+aiosqlite://", "sqlite://").replace(
         "postgresql+asyncpg://", "postgresql://"
     )
