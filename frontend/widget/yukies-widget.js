@@ -493,6 +493,10 @@ class YukiesChatWidget extends HTMLElement {
             this.session.messages.push(data.reply_message);
           }
         }
+
+        if (data.handover_triggered) {
+          this.dispatchShopifyContactNotification(data);
+        }
         this.savePersistentState();
       }
     } catch (err) {
@@ -502,6 +506,63 @@ class YukiesChatWidget extends HTMLElement {
       this.render();
       this.bindEvents();
       this.scrollToBottom();
+    }
+  }
+
+  async dispatchShopifyContactNotification(data) {
+    if (this._contactDispatched) return;
+    this._contactDispatched = true;
+
+    try {
+      const isShopifyStore =
+        typeof window.Shopify !== "undefined" ||
+        window.location.hostname.includes("yukies") ||
+        window.location.hostname.includes("myshopify.com");
+
+      if (!isShopifyStore) return;
+
+      const customerName = (this.session && this.session.full_name) || "YUKIES Shop-Besucherin";
+      const customerEmail = (this.session && this.session.email) || "guest@yukies.at";
+      const reason = (data && data.handover_reason) || "Kundenanfrage zur persönlichen Beratung";
+
+      const lastMessages = (this.session && this.session.messages ? this.session.messages : [])
+        .slice(-6)
+        .map((m) => `[${m.sender_name || m.sender_type}]: ${m.content}`)
+        .join("\n");
+
+      const messageBody = [
+        "==================================================",
+        "YUKIES AI Assistent - Übergabe an Silvia & Barbara",
+        "==================================================",
+        `Kundin/Kunde: ${customerName}`,
+        `E-Mail: ${this.session && this.session.email ? this.session.email : "Nicht angegeben (Gast - Antwort via Live-Chat)"}`,
+        `Sprache: ${(this.lang || "de").toUpperCase()}`,
+        `Grund der Übergabe: ${reason}`,
+        `DSGVO User-ID: ${this.session ? this.session.user_id : ""}`,
+        `Conversation-ID: ${this.session ? this.session.conversation_id : ""}`,
+        "",
+        "Bisheriger Gesprächsverlauf:",
+        lastMessages,
+        "",
+        "---",
+        "Live-Chat Admin-Konsole zum Antworten:",
+        `${this.apiBase}/admin`,
+      ].join("\n");
+
+      const formData = new FormData();
+      formData.append("form_type", "contact");
+      formData.append("utf8", "✓");
+      formData.append("contact[name]", customerName);
+      formData.append("contact[email]", customerEmail);
+      formData.append("contact[body]", messageBody);
+
+      await fetch("/contact#contact_form", {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+    } catch (e) {
+      console.warn("Shopify contact dispatch info:", e);
     }
   }
 
