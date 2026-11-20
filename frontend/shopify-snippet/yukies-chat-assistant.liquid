@@ -27,7 +27,7 @@
   };
 
   /* Real product images from Shopify catalog */
-  {% assign yukies_handles = "yukies-body-butter,yukies-baby-oil,yukies-sugarscrub,yukies-tummy-stick,yukies-mild-hair-body-wash-150ml,burste,geschenksbox" | split: "," %}
+  {% assign yukies_handles = "yukies-body-butter,yukies-baby-oil,yukies-sugarscrub,yukies-tummy-stick,yukies-mild-hair-body-wash-150ml,burste,geschenksbox,bald-mama-wellness-set,self-care-ritual-set,babys-erste-pflege-set,babyparty-grosses-set,babyparty-starter-set" | split: "," %}
   window.YukiesProductCatalog = {
     {% for handle in yukies_handles %}
       {% assign p_item = all_products[handle] %}

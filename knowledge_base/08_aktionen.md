@@ -22,13 +22,13 @@ Preise und Verfügbarkeit immer live aus dem Shop. Setpreise laut Silvia (09.11.
 Sets haben keine eigene Geschenkbox. [OFFEN] Eindeutige Namen für Y-SET-4 und Y-SET-5 (beide „Babyparty“). Sets erst nennen, wenn sie im Shop live sind.
 
 ## Black Week 23.–27.11.2026
-[OFFEN] Finaler Text von Barbara. Nicht vor der Freigabe kommunizieren.
-Geplant:
+Offizielle Aktion für die Black Week:
 - Ab 50 €: Trockenbürste gratis
 - Ab 80 €: Trockenbürste + Mild Hair & Body Wash gratis
 - Ab 120 €: Trockenbürste + Mild Hair & Body Wash + Sugar Scrub gratis
 - Nur die höchste erreichte Stufe pro Bestellung; solange der Vorrat reicht; nicht mit anderen Rabattcodes kombinierbar; keine Barablöse.
 - Wird ein Teil retourniert und sinkt der Warenwert unter die erreichte Stufe, sind die Gratisprodukte ungeöffnet mit zurückzusenden.
+- Jede Bestellung erhält eine Yukies-Begrüßungskarte; Erstbestellungen erhalten 3 Duftwachse à 5 g als Geschenk. Gratisversand ab 50 € für Österreich, die EU und die Schweiz.
 
 ## Rabattcodes
 Aktuell keine. Der Assistent nennt keine Codes.

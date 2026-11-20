@@ -122,31 +122,53 @@ class YukiesGeminiAssistant:
                 "schwangerschaft", "stillzeit", "pregnancy", "stretch",
                 "grossesse", "vergetures", "beurre corporel",
                 "gravidanza", "smagliature", "burro corpo",
+                "بادی باتر", "کره بدن", "بارداری", "ترک بارداری", "شیردهی",
             ],
             "yukies-baby-oil": [
                 "babyöl", "baby oil", "babyoel", "mandelöl", "windelbereich",
                 "weiße stücke", "white flakes", "huile bébé", "amande douce",
                 "flocons blancs", "olio baby", "olio bambini", "mandorle dolci", "pezzetti bianchi",
+                "روغن بچه", "روغن نوزاد", "ماساژ نوزاد", "پوشک",
             ],
             "yukies-sugarscrub": [
                 "sugar scrub", "sugarscrub", "zuckerpeeling", "peeling",
                 "rose vanilla", "rosenblüten", "braun", "gommage", "sucre", "esfoliante",
+                "اسکراب", "لایه بردار", "اسکراب شکر", "اسکراب رز",
             ],
             "yukies-tummy-stick": [
                 "tummy stick", "tummystick", "bauchmassage", "kakaobutter",
                 "bauch", "bäuchlein", "tummy", "massage ventre", "pancino", "massaggio pancia",
+                "تامی استیک", "استیک شکم", "دل درد نوزاد", "کولیک", "ماساژ شکم",
             ],
             "yukies-mild-hair-body-wash-150ml": [
                 "hair & body wash", "wasch-gel", "waschgel", "body wash",
                 "haare", "shampoo", "gel lavant", "corps et cheveux", "bagnetto", "detergente",
+                "شامپو", "شامپو بچه", "شوینده سر و بدن", "شامپو نوزاد",
             ],
             "burste": [
                 "trockenbürste", "bürste", "dry brush", "tampico", "lymphdrainage",
                 "brosse à sec", "spazzola a secco", "spazzola",
+                "برس خشک", "برس چوبی", "براش خشک", "درای براش",
             ],
             "geschenksbox": [
                 "geschenkbox", "geschenksbox", "mama & baby box", "mama-baby box",
                 "gift box", "geschenk", "coffret cadeau", "confezione regalo",
+                "پک هدیه", "باکس هدیه", "کادو", "هدیه زایمان",
+            ],
+            "bald-mama-wellness-set": [
+                "bald mama", "wellness set", "y-set-1", "ست بارداری", "ست مادر",
+            ],
+            "self-care-ritual-set": [
+                "self-care", "self care", "ritual set", "y-set-2", "ست مراقبت",
+            ],
+            "babys-erste-pflege-set": [
+                "babys erste pflege", "erstausstattung", "y-set-3", "ست نوزاد", "سیسمونی",
+            ],
+            "babyparty-grosses-set": [
+                "babyparty", "babyshower", "baby shower", "y-set-4", "بیبی شاور", "جشن قدم",
+            ],
+            "babyparty-starter-set": [
+                "babyparty duo", "baby duo", "y-set-5", "ست مینی", "ست دو تایی",
             ],
         }
         prod_by_handle = {p.handle: p for p in all_prods}
@@ -305,6 +327,52 @@ class YukiesGeminiAssistant:
             return (
                 "Aktuell gibt es keinen aktiven Rabattcode. Bei deiner ersten Bestellung erhältst du jedoch 3 Duftwachse à 5 g als Geschenk, ab 50 € Bestellwert ist der Versand nach Österreich, in die EU und die Schweiz kostenlos, und ab 70 € Bestellwert legen wir einen Tummy Stick als Geschenk bei, solange der Vorrat reicht.",
                 ["geschenksbox"],
+                False,
+                None,
+            )
+
+        # 2b. Black Friday / Black Week 2026 inquiry (23.–27. November 2026)
+        if any(w in lower for w in ["black week", "black friday", "cyber monday", "جمعه سیاه", "بلک فرایدی"]):
+            if language == "en":
+                return (
+                    "During YUKIES Black Week (November 23–27, 2026), we do not offer discount codes, but rather exclusive full-size product gifts with your order:\n"
+                    "• Orders over 50 €: Free Dry Brush (Trockenbürste)\n"
+                    "• Orders over 80 €: Free Dry Brush + Mild Hair & Body Wash (150 ml)\n"
+                    "• Orders over 120 €: Free Dry Brush + Mild Hair & Body Wash + Sugar Scrub Rose Vanilla (200 g)\n\n"
+                    "Only the highest reached tier applies per order (while supplies last). Plus, shipping is free on orders over 50 € in Austria, the EU, and Switzerland.",
+                    ["burste", "yukies-mild-hair-body-wash-150ml", "yukies-sugarscrub"],
+                    False,
+                    None,
+                )
+            if language == "fr":
+                return (
+                    "Pendant la Black Week YUKIES (du 23 au 27 novembre 2026), nous ne proposons pas de codes promo mais des cadeaux exclusifs grand format ajoutés à votre commande :\n"
+                    "• Dès 50 € d'achat : Brosse à sec (Trockenbürste) offerte\n"
+                    "• Dès 80 € d'achat : Brosse à sec + Mild Hair & Body Wash (150 ml) offerts\n"
+                    "• Dès 120 € d'achat : Brosse à sec + Mild Hair & Body Wash + Sugar Scrub Rose Vanilla (200 g) offerts\n\n"
+                    "Le palier le plus élevé atteint s'applique par commande (jusqu'à épuisement des stocks). De plus, la livraison est gratuite dès 50 € en Autriche, dans l'UE et en Suisse.",
+                    ["burste", "yukies-mild-hair-body-wash-150ml", "yukies-sugarscrub"],
+                    False,
+                    None,
+                )
+            if language == "it":
+                return (
+                    "Durante la Black Week di YUKIES (23–27 novembre 2026) non utilizziamo codici sconto, ma aggiungiamo regali esclusivi in formato originale al tuo ordine:\n"
+                    "• Da 50 € di spesa: Spazzola a secco (Trockenbürste) in omaggio\n"
+                    "• Da 80 € di spesa: Spazzola a secco + Mild Hair & Body Wash (150 ml) in omaggio\n"
+                    "• Da 120 € di spesa: Spazzola a secco + Mild Hair & Body Wash + Sugar Scrub Rose Vanilla (200 g) in omaggio\n\n"
+                    "Si applica il livello più alto raggiunto per ordine (fino a esaurimento scorte). Inoltre, la spedizione è gratuita da 50 € per Austria, UE e Svizzera.",
+                    ["burste", "yukies-mild-hair-body-wash-150ml", "yukies-sugarscrub"],
+                    False,
+                    None,
+                )
+            return (
+                "In der YUKIES Black Week (23.–27. November 2026) gibt es keine Rabattcodes, sondern hochwertige Original-Vollgrößen als Geschenk zu deiner Bestellung:\n"
+                "• Ab 50 € Bestellwert: 1x Trockenbürste gratis\n"
+                "• Ab 80 € Bestellwert: 1x Trockenbürste + 1x Mild Hair & Body Wash (150 ml) gratis\n"
+                "• Ab 120 € Bestellwert: 1x Trockenbürste + 1x Mild Hair & Body Wash + 1x Sugar Scrub Rose Vanilla (200 g) gratis\n\n"
+                "Es gilt jeweils die höchste erreichte Stufe pro Bestellung, solange der Vorrat reicht. Zudem ist der Versand ab 50 € nach Österreich, in die EU und die Schweiz kostenlos.",
+                ["burste", "yukies-mild-hair-body-wash-150ml", "yukies-sugarscrub"],
                 False,
                 None,
             )

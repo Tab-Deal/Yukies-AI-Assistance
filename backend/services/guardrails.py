@@ -251,14 +251,7 @@ def analyze_customer_input(
         result.matched_triggers.append("offen_body_butter_frequency")
         return result
 
-    # 3. [OFFEN] Item 5: Black Week / Black Friday details (08_aktionen.md & 10_offene_punkte.md)
-    if any(w in lower for w in ["black week", "black friday", "cyber monday"]):
-        result.requires_immediate_handoff = True
-        result.handoff_reason = "[OFFEN] Black Week Aktion (noch nicht freigegeben)"
-        result.matched_triggers.append("offen_black_week")
-        return result
-
-    # 4. [OFFEN] Item 3: Delivery time outside the EU (05_versand_logistik.md)
+    # 3. Delivery time outside the EU (05_versand_logistik.md)
     if any(
         w in lower
         for w in ["lieferzeit", "dauert der versand", "delivery time", "how long does shipping"]
@@ -360,7 +353,7 @@ def analyze_customer_input(
         result.matched_triggers.append("damaged_or_complaint")
         return result
 
-    # 8. Explicit request for a human agent
+    # 8. Explicit request for a human agent (German, English, French, Italian, Persian)
     if any(
         w in lower
         for w in [
@@ -376,6 +369,20 @@ def analyze_customer_input(
             "real person",
             "parler à un humain",
             "parlare con una persona",
+            # Persian support triggers
+            "صحبت با پشتیبان",
+            "پشتیبانی",
+            "انسان واقعی",
+            "پشتیبان حقیقی",
+            "اپراتور",
+            "وصل کن به پشتیبانی",
+            "با یک انسان",
+            "صحبت با انسان",
+            "پشتیبان انسانی",
+            "نفر حقیقی",
+            "تماس با انسان",
+            "ادمین",
+            "سیلویا",
         ]
     ):
         result.requires_immediate_handoff = True

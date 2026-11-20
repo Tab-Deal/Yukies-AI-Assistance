@@ -372,3 +372,57 @@ async def test_allergen_exact_response_silvia_rule():
         handles = [p["handle"] for p in res["reply_message"]["referenced_products"]]
         assert "yukies-tummy-stick" in handles
         assert "yukies-baby-oil" in handles
+
+
+@pytest.mark.asyncio
+async def test_black_friday_and_persian_support_handoff():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        sess = (
+            await client.post(
+                "/api/chat/session",
+                json={
+                    "full_name": "Reza Test",
+                    "email": "reza@example.com",
+                    "gdpr_consent": True,
+                    "language": "de",
+                },
+            )
+        ).json()
+
+        # 1. Black Friday inquiry
+        bf_res = (
+            await client.post(
+                "/api/chat/message",
+                json={
+                    "user_id": sess["user_id"],
+                    "conversation_id": sess["conversation_id"],
+                    "message": "Habt ihr Angebote für Black Friday?",
+                    "language": "de",
+                },
+            )
+        ).json()
+
+        bf_content = bf_res["reply_message"]["content"]
+        assert "Black Week" in bf_content
+        assert "Trockenbürste" in bf_content
+        bf_handles = [p["handle"] for p in bf_res["reply_message"]["referenced_products"]]
+        assert "burste" in bf_handles
+        assert bf_res["handover_triggered"] is False
+
+        # 2. Persian human handoff request
+        persian_res = (
+            await client.post(
+                "/api/chat/message",
+                json={
+                    "user_id": sess["user_id"],
+                    "conversation_id": sess["conversation_id"],
+                    "message": "سلام من میخوام با پشتیبانی و یک انسان صحبت کنم",
+                    "language": "de",
+                },
+            )
+        ).json()
+
+        assert persian_res["handover_triggered"] is True
+        assert persian_res["status"] == "waiting_for_agent"
+        assert "office@bacciorganics.com" in persian_res["reply_message"]["content"]
