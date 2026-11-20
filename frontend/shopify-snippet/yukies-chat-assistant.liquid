@@ -25,6 +25,18 @@
       locale: {{ request.locale.iso_code | slice: 0, 2 | default: 'de' | json }}
     {% endif %}
   };
+
+  window.YukiesProductCatalog = {
+    {% for handle in "yukies-body-butter,yukies-baby-oil,yukies-sugarscrub,yukies-tummy-stick,yukies-mild-hair-body-wash-150ml,burste,geschenksbox" | split: "," %}
+      {% assign p_item = all_products[handle] %}
+      {% if p_item and p_item.featured_image %}
+        {{ handle | json }}: {
+          image: {{ p_item.featured_image | image_url: width: 140 | json }},
+          url: {{ p_item.url | json }}
+        },
+      {% endif %}
+    {% endfor %}
+  };
 </script>
 
 <!-- YUKIES Web Component Bundle (Zero CSS conflicts with Dawn 7.0) -->
