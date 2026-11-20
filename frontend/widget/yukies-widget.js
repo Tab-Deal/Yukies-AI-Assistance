@@ -551,14 +551,16 @@ class YukiesChatWidget extends HTMLElement {
   // ---------------------------------------------------------------------------
 
   renderStatusBadge(t) {
-    if (!this.session) return t.brandSubtitle;
+    if (!this.session) {
+      return `<span class="yukies-status-badge">${this.escapeHtml(t.brandSubtitle)}</span>`;
+    }
     if (this.session.status === "agent_active" && this.session.assigned_agent) {
-      return `${t.statusAgent} ${this.escapeHtml(this.session.assigned_agent)}`;
+      return `<span class="yukies-status-badge" style="background: var(--accent);">${this.escapeHtml(t.statusAgent)} ${this.escapeHtml(this.session.assigned_agent)}</span>`;
     }
     if (this.session.status === "waiting_for_agent") {
-      return t.statusWaiting;
+      return `<span class="yukies-status-badge" style="background: var(--brand-pink-soft);">${this.escapeHtml(t.statusWaiting)}</span>`;
     }
-    return t.statusAi;
+    return `<span class="yukies-status-badge">${this.escapeHtml(t.statusAi)}</span>`;
   }
 
   renderProductCards(message, t) {
@@ -592,27 +594,40 @@ class YukiesChatWidget extends HTMLElement {
               .map(
                 (p) => `
               <div class="yukies-product-card">
-                <div class="yukies-product-top">
-                  <div class="yukies-product-meta">
-                    <span class="yukies-product-cert">${this.escapeHtml(p.certification || "COSMOS ORGANIC")}</span>
-                    <span class="yukies-product-title">${this.escapeHtml(p.title)}</span>
-                    <span class="yukies-product-size">${this.escapeHtml(p.size)}</span>
+                ${
+                  p.image_url
+                    ? `<img src="${this.escapeHtml(p.image_url)}" class="yukies-product-thumb" alt="${this.escapeHtml(p.title)}" loading="lazy" />`
+                    : `<div class="yukies-product-thumb-placeholder">
+                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                           <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                           <line x1="12" y1="22.08" x2="12" y2="12"/>
+                         </svg>
+                       </div>`
+                }
+                <div class="yukies-product-content">
+                  <div class="yukies-product-top">
+                    <div class="yukies-product-meta">
+                      <span class="yukies-product-cert">${this.escapeHtml(p.certification || "COSMOS ORGANIC")}</span>
+                      <span class="yukies-product-title">${this.escapeHtml(p.title)}</span>
+                      <span class="yukies-product-size">${this.escapeHtml(p.size)}</span>
+                    </div>
+                    <div class="yukies-product-pricing">
+                      ${p.compare_at_price ? `<span class="yukies-price-compare">${this.escapeHtml(p.compare_at_price)}</span>` : ""}
+                      <span class="yukies-price-val">${this.escapeHtml(p.price)}</span>
+                      <span class="yukies-stock-badge ${p.available ? "in-stock" : "out-stock"}">
+                        ${p.available ? t.inStock : t.outOfStock}
+                      </span>
+                    </div>
                   </div>
-                  <div class="yukies-product-pricing">
-                    ${p.compare_at_price ? `<span class="yukies-price-compare">${this.escapeHtml(p.compare_at_price)}</span>` : ""}
-                    <span class="yukies-price-val">${this.escapeHtml(p.price)}</span>
-                    <span class="yukies-stock-badge ${p.available ? "in-stock" : "out-stock"}">
-                      ${p.available ? t.inStock : t.outOfStock}
-                    </span>
-                  </div>
+                  <p class="yukies-product-desc">${this.escapeHtml(p.short_description)}</p>
+                  <a class="yukies-product-btn" href="${this.escapeHtml(p.product_url)}" target="_blank" rel="noopener noreferrer">
+                    <span>${t.viewProductBtn}</span>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                    </svg>
+                  </a>
                 </div>
-                <p class="yukies-product-desc">${this.escapeHtml(p.short_description)}</p>
-                <a class="yukies-product-btn" href="${this.escapeHtml(p.product_url)}" target="_blank" rel="noopener noreferrer">
-                  <span>${t.viewProductBtn}</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M7 17L17 7M17 7H7M17 7V17"/>
-                  </svg>
-                </a>
               </div>
             `
               )
@@ -633,91 +648,133 @@ class YukiesChatWidget extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          --yk-bg: #FAF7F2;
-          --yk-surface: #FFFFFF;
-          --yk-primary: #2E3B32;
-          --yk-primary-hover: #222C25;
-          --yk-accent: #C7B299;
-          --yk-border: #E8E2D8;
-          --yk-text: #232321;
-          --yk-muted: #6B6760;
-          --yk-agent-bg: #EEF5F0;
-          --yk-shadow: 0 16px 40px rgba(46, 59, 50, 0.16);
-          --yk-radius: 18px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-          color: var(--yk-text);
+          /* Palette (Brand Navy & Periwinkle Scale v2.2) */
+          --background: #FAFAFA;
+          --card: #FFFFFF;
+          --muted: #F4F4F5;
+          --foreground: #0D1D3A;        /* Brand Navy — متن اصلی و هدینگ */
+          --muted-foreground: #71717A;  /* متن فرعی و توضیح */
+
+          /* Actions */
+          --primary: #0D1D3A;           /* دکمه‌های اصلی و حباب پیام کاربر */
+          --primary-foreground: #F4F6FC;
+          --primary-hover: #152656;
+          --primary-active: #1F3474;
+          --secondary: #CED5F1;         /* Periwinkle accent */
+          --accent: #E4E8F8;            /* هاور سافت، چیپ‌ها، هایلایت ملایم */
+          --brand-pink-soft: #FEE7F3;   /* بج‌ها و دکمه‌های ثانویه ملایم */
+          --brand-pink: #FAB9DA;
+          --brand-cream: #FCFAE9;
+
+          /* Borders & Focus */
+          --border: #E4E4E7;
+          --border-hover: #A1A1AA;
+          --input: #D4D4D8;
+          --ring: #152656;
+
+          /* Feedback */
+          --feedback-success: #2F6B51;
+          --feedback-success-bg: #EAF4EE;
+          --feedback-error: #B42318;
+          --feedback-error-bg: #FCEBED;
+
+          /* Typography (Shopify theme inherited - Zero Google Fonts CDN for GDPR) */
+          --font-heading: "Epilogue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          --font-sans: "Arimo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+          --font-serif-accent: "Instrument Serif", Georgia, serif;
+
+          /* Geometry */
+          --radius-card: 0px;           /* کارت محصول و قاب عکس‌های ادیتوریال */
+          --radius-panel: 20px;         /* پنجره‌های شناور، مودال و سرچ‌دراپ‌داون */
+          --radius-control: 24px;       /* دکمه‌ها و اینپوت‌ها */
+          --radius-control-hover: 16px; /* تغییر نرم شعاع در هاور */
+          --radius-pill: 9999px;        /* چیپ‌ها و Pill Button */
+
+          /* Shadows & Motion */
+          --shadow-floating: 0 20px 44px rgba(13, 29, 58, 0.12);
+          --shadow-pill: 0 2px 8px rgba(13, 29, 58, 0.25);
+          --backdrop-blur: blur(12px);
+          --motion-fast: 150ms ease-in-out;
+          --motion-normal: 200ms ease-in-out;
+
+          font-family: var(--font-sans);
+          color: var(--foreground);
           display: block;
           -webkit-font-smoothing: antialiased;
         }
 
+        .yukies-italic {
+          font-family: var(--font-serif-accent);
+          font-style: italic;
+          font-weight: 400;
+        }
+
         /* ------------------------------------------------------------- */
-        /* Floating Launcher Button (Dawn 7.0 embedded)                  */
-        /* ------------------------------------------------------------- */
-        /* ------------------------------------------------------------- */
-        /* Floating Circular Launcher Button (Only Logo)                  */
+        /* Floating Circular Launcher Button (.yukies-btn-pill pattern)   */
         /* ------------------------------------------------------------- */
         .yukies-launcher-bubble {
           position: fixed;
           ${this.position === "bottom-left" ? "left: 24px;" : "right: 24px;"}
           bottom: 24px;
-          z-index: 2147483640;
+          z-index: 450;
           display: ${this.isInline ? "none" : "flex"};
           align-items: center;
           justify-content: center;
-          width: 62px;
-          height: 62px;
-          border-radius: 50%;
-          background: #FAF7F2;
-          border: 1.5px solid #232738;
+          width: 60px;
+          height: 60px;
+          border-radius: var(--radius-pill);
+          background: var(--card);
+          border: 1.5px solid var(--primary);
           cursor: pointer;
-          box-shadow: 0 8px 24px rgba(29, 35, 56, 0.18), 0 2px 6px rgba(29, 35, 56, 0.08);
+          box-shadow: var(--shadow-pill);
           padding: 0;
-          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+          transition: transform var(--motion-normal), box-shadow var(--motion-normal), background var(--motion-normal), border-color var(--motion-normal);
         }
         .yukies-launcher-bubble:hover {
-          transform: scale(1.08) translateY(-2px);
-          box-shadow: 0 12px 28px rgba(29, 35, 56, 0.24), 0 4px 10px rgba(29, 35, 56, 0.12);
-          border-color: #1a1e2c;
+          transform: translateY(-2px) scale(1.04);
+          background: var(--muted);
+          border-color: var(--primary-hover);
+          box-shadow: var(--shadow-floating);
         }
         .yukies-launcher-bubble:active {
           transform: scale(0.96);
         }
         .yukies-launcher-mascot {
-          width: 38px;
-          height: 38px;
+          width: 36px;
+          height: 36px;
           object-fit: contain;
           pointer-events: none;
           user-select: none;
         }
         .yukies-pulse-dot {
           position: absolute;
-          top: 3px;
-          right: 3px;
-          width: 11px;
-          height: 11px;
+          top: 2px;
+          right: 2px;
+          width: 10px;
+          height: 10px;
           border-radius: 50%;
-          background: #48BB78;
-          border: 2px solid #FAF7F2;
-          box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
+          background: var(--feedback-success);
+          border: 2px solid var(--card);
+          box-shadow: 0 0 0 0 rgba(47, 107, 81, 0.7);
           animation: yk-pulse 2s infinite;
         }
         @keyframes yk-pulse {
-          0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
-          70% { box-shadow: 0 0 0 6px rgba(72, 187, 120, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+          0% { box-shadow: 0 0 0 0 rgba(47, 107, 81, 0.7); }
+          70% { box-shadow: 0 0 0 6px rgba(47, 107, 81, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(47, 107, 81, 0); }
         }
         .yukies-unread-badge {
           position: absolute;
           top: -4px;
           right: -4px;
-          background: #D9534F;
+          background: var(--feedback-error);
           color: #FFFFFF;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 700;
           line-height: 1;
           padding: 3px 6px;
-          border-radius: 999px;
-          border: 2px solid #FAF7F2;
+          border-radius: var(--radius-pill);
+          border: 2px solid var(--card);
         }
 
         /* ------------------------------------------------------------- */
@@ -727,22 +784,22 @@ class YukiesChatWidget extends HTMLElement {
           position: fixed;
           ${this.position === "bottom-left" ? "left: 24px;" : "right: 24px;"}
           bottom: 96px;
-          z-index: 2147483641;
-          max-width: 270px;
-          background: #FAF7F2;
-          border: 1.5px solid #232738;
-          border-radius: 16px;
-          box-shadow: 0 12px 30px rgba(29, 35, 56, 0.2), 0 2px 8px rgba(29, 35, 56, 0.08);
+          z-index: 450;
+          max-width: 275px;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-panel);
+          box-shadow: var(--shadow-floating);
           padding: 12px 14px;
           cursor: pointer;
           display: flex;
           flex-direction: column;
           animation: yk-popup-bounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          transition: transform var(--motion-normal), box-shadow var(--motion-normal);
         }
         .yukies-proactive-popup:hover {
           transform: translateY(-2px);
-          box-shadow: 0 16px 36px rgba(29, 35, 56, 0.24);
+          box-shadow: 0 24px 48px rgba(13, 29, 58, 0.16);
         }
         .yukies-proactive-popup::after {
           content: "";
@@ -753,7 +810,7 @@ class YukiesChatWidget extends HTMLElement {
           height: 0;
           border-left: 8px solid transparent;
           border-right: 8px solid transparent;
-          border-top: 9px solid #232738;
+          border-top: 9px solid var(--border);
         }
         @keyframes yk-popup-bounce {
           0% { opacity: 0; transform: translateY(14px) scale(0.9); }
@@ -761,42 +818,44 @@ class YukiesChatWidget extends HTMLElement {
         }
         .yukies-proactive-close {
           position: absolute;
-          top: 6px;
-          right: 8px;
+          top: 8px;
+          right: 10px;
           background: transparent;
           border: none;
           font-size: 16px;
           line-height: 1;
-          color: #718096;
+          color: var(--muted-foreground);
           cursor: pointer;
           padding: 2px 5px;
           border-radius: 50%;
+          transition: color var(--motion-fast), background var(--motion-fast);
         }
         .yukies-proactive-close:hover {
-          color: #232738;
-          background: rgba(35, 39, 56, 0.08);
+          color: var(--foreground);
+          background: var(--muted);
         }
         .yukies-proactive-content {
           display: flex;
           align-items: center;
           gap: 10px;
-          padding-right: 14px;
+          padding-right: 16px;
         }
         .yukies-proactive-avatar {
-          width: 26px;
-          height: 26px;
+          width: 28px;
+          height: 28px;
           object-fit: contain;
           flex-shrink: 0;
         }
         .yukies-proactive-text {
+          font-family: var(--font-sans);
           font-size: 13px;
           font-weight: 500;
           line-height: 1.4;
-          color: #232738;
+          color: var(--foreground);
         }
 
         /* ------------------------------------------------------------- */
-        /* Drawer Window                                                 */
+        /* Drawer Window (.yukies-header-search__dropdown & modal spec)  */
         /* ------------------------------------------------------------- */
         .yukies-drawer {
           ${
@@ -811,19 +870,19 @@ class YukiesChatWidget extends HTMLElement {
             position: fixed;
             ${this.position === "bottom-left" ? "left: 24px;" : "right: 24px;"}
             bottom: 86px;
-            width: 410px;
+            width: 390px;
             max-width: calc(100vw - 32px);
             height: 640px;
             max-height: calc(100vh - 110px);
             display: ${this.isOpen ? "flex" : "none"};
-            z-index: 2147483645;
+            z-index: 450;
             animation: yk-drawer-open 0.24s cubic-bezier(0.16, 1, 0.3, 1);
           `
           }
-          background: var(--yk-bg);
-          border: 1px solid var(--yk-border);
-          border-radius: var(--yk-radius);
-          box-shadow: var(--yk-shadow);
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-panel);
+          box-shadow: var(--shadow-floating);
           flex-direction: column;
           overflow: hidden;
         }
@@ -832,7 +891,7 @@ class YukiesChatWidget extends HTMLElement {
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 680px) {
           .yukies-drawer {
             ${
               this.isInline
@@ -846,24 +905,25 @@ class YukiesChatWidget extends HTMLElement {
               max-width: 100vw;
               height: 100vh;
               max-height: 100vh;
-              border-radius: 0;
+              border-radius: 20px 20px 0 0;
               border: none;
+              z-index: 450;
             `
             }
           }
         }
 
         /* ------------------------------------------------------------- */
-        /* Header                                                        */
+        /* Header (.yukies-cart-drawer__header pattern)                  */
         /* ------------------------------------------------------------- */
         .yukies-header {
-          background: var(--yk-primary);
-          color: #FAF7F2;
+          background: var(--card);
+          color: var(--foreground);
           padding: 14px 18px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid var(--border);
         }
         .yukies-header-brand {
           display: flex;
@@ -874,25 +934,38 @@ class YukiesChatWidget extends HTMLElement {
           width: 32px;
           height: 32px;
           object-fit: contain;
-          background: #FAF7F2;
+          background: var(--muted);
           border-radius: 50%;
           padding: 2px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid var(--border);
           flex-shrink: 0;
         }
         .yukies-brand-title {
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+          font-family: var(--font-heading);
+          font-size: 18px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          color: var(--foreground);
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
         }
         .yukies-brand-sub {
-          font-size: 11.5px;
-          color: #D3DDD5;
           margin-top: 2px;
           display: flex;
           align-items: center;
           gap: 6px;
+        }
+        .yukies-status-badge {
+          background: var(--brand-pink-soft);
+          color: var(--foreground);
+          padding: 3px 8px;
+          border-radius: var(--radius-pill);
+          font-size: 11px;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
         }
         .yukies-header-actions {
           display: flex;
@@ -901,55 +974,55 @@ class YukiesChatWidget extends HTMLElement {
         }
         .yukies-lang-pills {
           display: flex;
-          background: rgba(255, 255, 255, 0.12);
-          border-radius: 999px;
+          background: var(--muted);
+          border-radius: var(--radius-pill);
           padding: 2px;
-          border: 1px solid rgba(255, 255, 255, 0.18);
+          border: 1px solid var(--border);
         }
         .yukies-lang-btn {
           background: transparent;
-          color: #E2ECE5;
+          color: var(--muted-foreground);
           border: none;
-          padding: 3px 6px;
+          padding: 4px 7px;
           font-size: 10.5px;
           font-weight: 600;
-          border-radius: 999px;
+          font-family: var(--font-sans);
+          border-radius: var(--radius-pill);
           cursor: pointer;
           line-height: 1;
+          transition: background var(--motion-fast), color var(--motion-fast);
         }
         .yukies-lang-btn.active {
-          background: #FAF7F2;
-          color: var(--yk-primary);
+          background: var(--primary);
+          color: var(--primary-foreground);
         }
         .yukies-icon-btn {
           background: transparent;
           border: none;
-          color: #FAF7F2;
+          color: var(--foreground);
           font-size: 18px;
           line-height: 1;
           cursor: pointer;
           padding: 6px;
-          border-radius: 6px;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          opacity: 0.85;
-          transition: opacity 0.15s, background 0.15s;
+          transition: background var(--motion-fast), color var(--motion-fast);
         }
         .yukies-icon-btn:hover {
-          opacity: 1;
-          background: rgba(255, 255, 255, 0.12);
+          background: var(--muted);
         }
 
         /* ------------------------------------------------------------- */
         /* User Profile Status Bar                                       */
         /* ------------------------------------------------------------- */
         .yukies-user-status-bar {
-          background: #F2ECE2;
-          border-bottom: 1px solid var(--yk-border);
+          background: var(--background);
+          border-bottom: 1px solid var(--border);
           padding: 7px 16px;
           font-size: 11.5px;
-          color: var(--yk-muted);
+          color: var(--muted-foreground);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -957,10 +1030,11 @@ class YukiesChatWidget extends HTMLElement {
         .yukies-user-id-code {
           font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
           font-size: 10px;
-          background: rgba(46, 59, 50, 0.08);
-          padding: 2px 5px;
+          background: var(--muted);
+          padding: 2px 6px;
           border-radius: 4px;
-          color: var(--yk-primary);
+          border: 1px solid var(--border);
+          color: var(--foreground);
         }
 
         /* ------------------------------------------------------------- */
@@ -973,57 +1047,92 @@ class YukiesChatWidget extends HTMLElement {
           display: flex;
           flex-direction: column;
           gap: 12px;
+          background: var(--background);
         }
         .yukies-bubble {
           max-width: 86%;
           padding: 11px 14px;
-          border-radius: 14px;
-          font-size: 13.5px;
-          line-height: 1.52;
+          font-size: 14px;
+          font-family: var(--font-sans);
+          line-height: 1.5;
           word-break: break-word;
           position: relative;
         }
         .yukies-bubble.ai {
           align-self: flex-start;
-          background: var(--yk-surface);
-          border: 1px solid var(--yk-border);
-          border-bottom-left-radius: 3px;
-          color: var(--yk-text);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 18px 18px 18px 4px;
+          color: var(--foreground);
+          box-shadow: 0 1px 3px rgba(13, 29, 58, 0.04);
         }
         .yukies-bubble.customer {
           align-self: flex-end;
-          background: var(--yk-primary);
-          color: #FAF7F2;
-          border-bottom-right-radius: 3px;
+          background: var(--primary);
+          color: var(--primary-foreground);
+          border-radius: 18px 18px 4px 18px;
         }
         .yukies-bubble.human_agent {
           align-self: flex-start;
-          background: var(--yk-agent-bg);
-          border: 1px solid #B8D6C0;
-          border-bottom-left-radius: 3px;
+          background: var(--accent);
+          border: 1px solid var(--secondary);
+          border-radius: 18px 18px 18px 4px;
+          color: var(--foreground);
         }
         .yukies-bubble.system {
           align-self: center;
-          background: #ECE7DE;
-          color: var(--yk-muted);
-          font-size: 11px;
-          padding: 6px 12px;
-          border-radius: 999px;
+          background: var(--muted);
+          color: var(--muted-foreground);
+          font-size: 11.5px;
+          padding: 6px 14px;
+          border-radius: var(--radius-pill);
+          border: 1px solid var(--border);
           max-width: 90%;
           text-align: center;
         }
         .yukies-agent-title {
           font-size: 10.5px;
           font-weight: 600;
-          color: #215A33;
+          color: var(--primary);
           margin-bottom: 4px;
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
 
         /* ------------------------------------------------------------- */
-        /* On-Demand Product Recommendations                             */
+        /* Quick Prompt Suggestions (.yukies-home-pill pattern)          */
+        /* ------------------------------------------------------------- */
+        .yukies-quick-prompts {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 6px;
+        }
+        .yukies-quick-chip {
+          height: 38px;
+          padding: 0 14px;
+          display: inline-flex;
+          align-items: center;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-pill);
+          font-size: 12.5px;
+          font-family: var(--font-sans);
+          font-weight: 500;
+          color: var(--foreground);
+          cursor: pointer;
+          transition: background var(--motion-normal), color var(--motion-normal), border-color var(--motion-normal), transform var(--motion-normal), box-shadow var(--motion-normal);
+        }
+        .yukies-quick-chip:hover {
+          background: var(--primary);
+          color: var(--primary-foreground);
+          border-color: var(--primary);
+          transform: translateY(-1px);
+          box-shadow: var(--shadow-pill);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* On-Demand Product Recommendations (.yukies-header-search__item)*/
         /* ------------------------------------------------------------- */
         .yukies-product-reco-wrap {
           margin-top: 10px;
@@ -1032,22 +1141,23 @@ class YukiesChatWidget extends HTMLElement {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 12px;
-          background: #FAF7F2;
-          border: 1px solid var(--yk-border);
-          border-radius: 999px;
-          font-size: 11.5px;
+          padding: 7px 14px;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-pill);
+          font-size: 12px;
+          font-family: var(--font-sans);
           font-weight: 500;
-          color: var(--yk-primary);
+          color: var(--foreground);
           cursor: pointer;
-          transition: background 0.15s, border-color 0.15s, color 0.15s;
+          transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
         }
         .yukies-show-products-btn:hover {
-          background: #EDE5D8;
-          border-color: #D8D0C3;
+          background: var(--muted);
+          border-color: var(--border-hover);
         }
         .yukies-show-products-btn svg {
-          transition: transform 0.2s ease;
+          transition: transform var(--motion-normal);
         }
         .yukies-show-products-btn.expanded svg {
           transform: rotate(180deg);
@@ -1059,154 +1169,185 @@ class YukiesChatWidget extends HTMLElement {
           margin-top: 10px;
         }
         .yukies-product-card {
-          background: #FAF7F2;
-          border: 1px solid var(--yk-border);
-          border-radius: 12px;
-          padding: 11px 13px;
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 10px 12px;
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          transition: background var(--motion-fast), border-color var(--motion-fast), transform var(--motion-fast), box-shadow var(--motion-fast);
+        }
+        .yukies-product-card:hover {
+          background: var(--background);
+          border-color: var(--border-hover);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(13, 29, 58, 0.06);
+        }
+        .yukies-product-thumb {
+          width: 52px;
+          height: 52px;
+          border-radius: 10px;
+          background: var(--muted);
+          object-fit: cover;
+          flex-shrink: 0;
+          border: 1px solid var(--border);
+        }
+        .yukies-product-thumb-placeholder {
+          width: 52px;
+          height: 52px;
+          border-radius: 10px;
+          background: var(--muted);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--muted-foreground);
+          flex-shrink: 0;
+          border: 1px solid var(--border);
+        }
+        .yukies-product-content {
+          flex: 1;
+          min-width: 0;
         }
         .yukies-product-top {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          gap: 10px;
+          gap: 8px;
         }
         .yukies-product-meta {
           display: flex;
           flex-direction: column;
+          min-width: 0;
         }
         .yukies-product-cert {
           font-size: 9.5px;
           text-transform: uppercase;
-          color: #4C6853;
+          color: var(--feedback-success);
           font-weight: 600;
           letter-spacing: 0.04em;
         }
         .yukies-product-title {
-          font-size: 13px;
+          font-family: var(--font-heading);
+          font-size: 13.5px;
           font-weight: 600;
-          color: var(--yk-primary);
-          margin-top: 2px;
+          color: var(--foreground);
+          margin-top: 1px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .yukies-product-size {
           font-size: 11px;
-          color: var(--yk-muted);
+          color: var(--muted-foreground);
         }
         .yukies-product-pricing {
           text-align: right;
           display: flex;
           flex-direction: column;
           align-items: flex-end;
+          flex-shrink: 0;
         }
         .yukies-price-compare {
-          font-size: 11px;
+          font-size: 10.5px;
           text-decoration: line-through;
-          color: var(--yk-muted);
+          color: var(--muted-foreground);
         }
         .yukies-price-val {
           font-size: 13.5px;
           font-weight: 600;
-          color: var(--yk-text);
+          font-family: var(--font-sans);
+          color: var(--foreground);
         }
         .yukies-stock-badge {
           font-size: 9px;
           padding: 2px 6px;
           border-radius: 4px;
           margin-top: 2px;
-          font-weight: 500;
+          font-weight: 600;
         }
         .yukies-stock-badge.in-stock {
-          background: #E3EFE6;
-          color: #215A33;
+          background: var(--feedback-success-bg);
+          color: var(--feedback-success);
         }
         .yukies-stock-badge.out-stock {
-          background: #FCE8E6;
-          color: #8C2519;
+          background: var(--feedback-error-bg);
+          color: var(--feedback-error);
         }
         .yukies-product-desc {
           font-size: 11.5px;
-          color: var(--yk-muted);
-          margin: 6px 0 9px 0;
-          line-height: 1.42;
+          color: var(--muted-foreground);
+          margin: 4px 0 6px 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         .yukies-product-btn {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
+          gap: 4px;
           font-size: 11.5px;
-          font-weight: 600;
-          color: var(--yk-primary);
+          font-weight: 500;
+          font-family: var(--font-sans);
+          background: var(--primary);
+          color: var(--primary-foreground);
+          padding: 5px 12px;
+          border-radius: var(--radius-control);
           text-decoration: none;
-          border-bottom: 1px solid var(--yk-primary);
-          padding-bottom: 1px;
+          transition: background var(--motion-fast), transform var(--motion-fast);
         }
         .yukies-product-btn:hover {
-          color: var(--yk-accent);
-          border-bottom-color: var(--yk-accent);
+          background: var(--primary-hover);
+          transform: translateY(-1px);
         }
 
         /* ------------------------------------------------------------- */
-        /* Quick Prompt Suggestions                                      */
-        /* ------------------------------------------------------------- */
-        .yukies-quick-prompts {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          margin-top: 6px;
-        }
-        .yukies-quick-chip {
-          background: var(--yk-surface);
-          border: 1px solid var(--yk-border);
-          border-radius: 999px;
-          padding: 6px 12px;
-          font-size: 11.5px;
-          color: var(--yk-primary);
-          cursor: pointer;
-          transition: background 0.15s, border-color 0.15s;
-        }
-        .yukies-quick-chip:hover {
-          background: #F2ECE2;
-          border-color: #D8D0C3;
-        }
-
-        /* ------------------------------------------------------------- */
-        /* Chat Input Footer                                             */
+        /* Chat Input Footer (Sticky Control Pill pattern)               */
         /* ------------------------------------------------------------- */
         .yukies-footer {
           padding: 12px 14px;
-          background: var(--yk-surface);
-          border-top: 1px solid var(--yk-border);
+          background: var(--card);
+          border-top: 1px solid var(--border);
           display: flex;
           gap: 8px;
+          align-items: center;
         }
         .yukies-input-box {
           flex: 1;
-          border: 1px solid var(--yk-border);
-          border-radius: 10px;
-          padding: 11px 13px;
+          border: 1px solid var(--input);
+          border-radius: var(--radius-control);
+          padding: 11px 16px;
           font-size: 13.5px;
           outline: none;
-          background: var(--yk-bg);
-          color: var(--yk-text);
+          background: var(--background);
+          color: var(--foreground);
           box-sizing: border-box;
-          font-family: inherit;
+          font-family: var(--font-sans);
+          transition: border-color var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
         }
         .yukies-input-box:focus {
-          border-color: var(--yk-primary);
-          background: #FFFFFF;
+          border-color: var(--ring);
+          background: var(--card);
+          box-shadow: 0 0 0 3px rgba(21, 38, 86, 0.12);
         }
         .yukies-send-button {
-          background: var(--yk-primary);
-          color: #FAF7F2;
+          background: var(--primary);
+          color: var(--primary-foreground);
           border: none;
-          border-radius: 10px;
+          border-radius: var(--radius-control);
+          height: 42px;
           padding: 0 18px;
           font-size: 13px;
           font-weight: 500;
+          font-family: var(--font-sans);
           cursor: pointer;
-          transition: background 0.15s;
+          transition: background var(--motion-fast), transform var(--motion-fast);
         }
         .yukies-send-button:hover:not(:disabled) {
-          background: var(--yk-primary-hover);
+          background: var(--primary-hover);
+          transform: translateY(-1px);
         }
         .yukies-send-button:disabled {
           opacity: 0.55;
@@ -1223,18 +1364,20 @@ class YukiesChatWidget extends HTMLElement {
           display: flex;
           flex-direction: column;
           justify-content: center;
+          background: var(--card);
         }
         .yukies-prechat-wrap h3 {
           margin: 0 0 6px 0;
-          font-size: 17px;
-          font-weight: 600;
-          color: var(--yk-primary);
+          font-family: var(--font-heading);
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--foreground);
         }
         .yukies-prechat-wrap p {
           margin: 0 0 16px 0;
-          font-size: 12.5px;
+          font-size: 13px;
           line-height: 1.5;
-          color: var(--yk-muted);
+          color: var(--muted-foreground);
         }
         .yukies-form-group {
           margin-bottom: 12px;
@@ -1243,27 +1386,36 @@ class YukiesChatWidget extends HTMLElement {
           display: block;
           font-size: 12px;
           font-weight: 500;
-          margin-bottom: 4px;
+          color: var(--foreground);
+          margin-bottom: 5px;
         }
         .yukies-form-group input {
           width: 100%;
           box-sizing: border-box;
-          padding: 10px 12px;
-          border: 1px solid var(--yk-border);
-          border-radius: 10px;
-          background: var(--yk-surface);
+          padding: 11px 16px;
+          border: 1px solid var(--input);
+          border-radius: var(--radius-control);
+          background: var(--background);
+          color: var(--foreground);
           font-size: 13.5px;
+          font-family: var(--font-sans);
           outline: none;
+          transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+        }
+        .yukies-form-group input:focus {
+          border-color: var(--ring);
+          background: var(--card);
+          box-shadow: 0 0 0 3px rgba(21, 38, 86, 0.12);
         }
         .yukies-training-notice {
           margin: 2px 0 14px 0 !important;
-          padding: 9px 11px;
-          background: #F2ECE2;
-          border: 1px solid var(--yk-border);
-          border-radius: 10px;
+          padding: 10px 12px;
+          background: var(--brand-cream);
+          border: 1px solid #F0ECD0;
+          border-radius: 12px;
           font-size: 11px !important;
           line-height: 1.45 !important;
-          color: var(--yk-text) !important;
+          color: var(--foreground) !important;
         }
         .yukies-consent-row {
           display: flex;
@@ -1272,24 +1424,30 @@ class YukiesChatWidget extends HTMLElement {
           margin: 10px 0 16px 0;
           font-size: 11px;
           line-height: 1.45;
-          color: var(--yk-muted);
+          color: var(--muted-foreground);
           cursor: pointer;
         }
         .yukies-consent-row input[type="checkbox"] {
           margin-top: 2px;
           cursor: pointer;
-          accent-color: var(--yk-primary);
+          accent-color: var(--primary);
         }
         .yukies-start-btn {
           width: 100%;
-          background: var(--yk-primary);
-          color: #FAF7F2;
+          background: var(--primary);
+          color: var(--primary-foreground);
           border: none;
-          border-radius: 10px;
-          padding: 12px;
+          border-radius: var(--radius-control);
+          padding: 13px;
           font-size: 13.5px;
           font-weight: 500;
+          font-family: var(--font-sans);
           cursor: pointer;
+          transition: background var(--motion-fast), transform var(--motion-fast);
+        }
+        .yukies-start-btn:hover {
+          background: var(--primary-hover);
+          transform: translateY(-1px);
         }
       </style>
 
@@ -1321,7 +1479,7 @@ class YukiesChatWidget extends HTMLElement {
           <div class="yukies-header-brand">
             <img src="${YUKIES_MASCOT_DATA_URI}" class="yukies-brand-avatar" alt="YUKIES Mascot" />
             <div>
-              <div class="yukies-brand-title">${this.escapeHtml(t.brandName)}</div>
+              <div class="yukies-brand-title">${this.escapeHtml(t.brandName)} <span class="yukies-italic">Wien</span></div>
               <div class="yukies-brand-sub">${this.renderStatusBadge(t)}</div>
             </div>
           </div>
