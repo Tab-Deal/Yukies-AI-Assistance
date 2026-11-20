@@ -4,83 +4,245 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>YUKIES Team Live-Chat & DSGVO Konsole (Silvia & Barbara)</title>
+  <title>YUKIES Wien · Live-Support & DSGVO Konsole (Silvia & Barbara)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Epilogue:ital,wght@0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #F6F4EF;
-      --surface: #FFFFFF;
-      --primary: #2E3B32;
-      --border: #E2DDD3;
-      --text: #222220;
-      --muted: #6C6861;
-      --warn-bg: #FFF4E5;
-      --warn-text: #8A4B08;
-      --active-bg: #E6F2EA;
-      --active-text: #1F5730;
+      --primary: #0D1D3A;
+      --primary-hover: #152656;
+      --primary-foreground: #F4F6FC;
+      --card: #FFFFFF;
+      --background: #FAF8F5;
+      --muted: #F4F6FC;
+      --border: #E4E8F8;
+      --border-hover: #CBD5E1;
+      --foreground: #0D1D3A;
+      --text-muted: #64748B;
+      --accent: #E4E8F8;
+      --brand-pink-soft: #FEE7F3;
+      --brand-pink-text: #9D174D;
+      --feedback-success: #2F6B51;
+      --feedback-success-bg: #ECFDF5;
+      --feedback-warning: #B45309;
+      --feedback-warning-bg: #FEF3C7;
+      --feedback-danger: #DC2626;
+      --feedback-danger-bg: #FEE2E2;
+      --font-heading: "Epilogue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-sans: "Arimo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-serif-accent: "Instrument Serif", Georgia, serif;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --radius-pill: 9999px;
+      --shadow-sm: 0 1px 3px rgba(13, 29, 58, 0.05);
+      --shadow-md: 0 4px 14px rgba(13, 29, 58, 0.07);
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: var(--font-sans);
+      background: var(--background);
+      color: var(--foreground);
       height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
     }
+    
+    /* Header */
     header {
       background: var(--primary);
-      color: #FAF7F2;
-      padding: 14px 24px;
+      color: var(--primary-foreground);
+      padding: 12px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
     }
-    header h1 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
-    .agent-selector {
+    .header-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 13px;
+      gap: 12px;
     }
-    .agent-selector select {
-      padding: 6px 10px;
-      border-radius: 8px;
+    .header-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      padding: 3px;
+      object-fit: contain;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    .brand-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #FFFFFF;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .brand-title .italic-serif {
+      font-family: var(--font-serif-accent);
+      font-style: italic;
+      font-weight: 400;
+      color: #FEE7F3;
+      font-size: 20px;
+    }
+    .brand-subtitle {
+      font-size: 11.5px;
+      color: #CBD5E1;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10B981;
+      display: inline-block;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .agent-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 12.5px;
+      color: #FFFFFF;
+    }
+    .agent-pill select {
+      background: #FFFFFF;
+      color: var(--primary);
       border: none;
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-heading);
       font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+      outline: none;
     }
+    .shop-link {
+      color: #CBD5E1;
+      text-decoration: none;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+    .shop-link:hover {
+      color: #FFFFFF;
+    }
+
+    /* Main Grid Layout */
     .layout {
       flex: 1;
       display: grid;
-      grid-template-columns: 350px 1fr 340px;
+      grid-template-columns: 360px 1fr 360px;
+      overflow: hidden;
+      background: var(--background);
+    }
+
+    /* Sidebar (Left) */
+    .sidebar {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
-    .sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      overflow-y: auto;
-    }
     .sidebar-header {
-      padding: 14px 16px;
+      padding: 16px;
       border-bottom: 1px solid var(--border);
-      font-weight: 600;
-      font-size: 13px;
+      background: #FFFFFF;
+    }
+    .sidebar-title-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }}
+    .sidebar-title {
+      font-family: var(--font-heading);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--foreground);
+    }
+    .filter-tabs {
+      display: flex;
+      background: var(--muted);
+      padding: 3px;
+      border-radius: var(--radius-pill);
+      gap: 2px;
+    }
+    .filter-tab {
+      flex: 1;
+      text-align: center;
+      padding: 5px 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-tab.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .conv-list {
+      flex: 1;
+      overflow-y: auto;
     }
     .conv-item {
       padding: 14px 16px;
       border-bottom: 1px solid var(--border);
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
     }
-    .conv-item:hover, .conv-item.selected {
-      background: #F4F0E8;
+    .conv-item:hover {
+      background: #F8FAFD;
+    }
+    .conv-item.selected {
+      background: #EEF2FB;
+      border-left: 4px solid var(--primary);
+    }
+    .conv-item.waiting {
+      background: #FFFDF7;
+    }
+    .conv-item.waiting::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--feedback-warning);
     }
     .conv-top {
       display: flex;
@@ -88,205 +250,462 @@
       align-items: center;
       margin-bottom: 4px;
     }
-    .conv-name { font-weight: 600; font-size: 14px; }
-    .badge {
-      font-size: 10.5px;
-      padding: 2px 8px;
-      border-radius: 999px;
+    .conv-name {
+      font-family: var(--font-heading);
       font-weight: 600;
+      font-size: 13.5px;
+      color: var(--foreground);
     }
-    .badge.waiting_for_agent { background: var(--warn-bg); color: var(--warn-text); }
-    .badge.agent_active { background: var(--active-bg); color: var(--active-text); }
-    .badge.ai_active { background: #ECEAE4; color: var(--muted); }
-    .conv-meta { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
-    .conv-preview { font-size: 12px; color: var(--text); opacity: 0.85; }
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: 0.02em;
+    }
+    .badge.waiting_for_agent {
+      background: var(--feedback-warning-bg);
+      color: var(--feedback-warning);
+      border: 1px solid rgba(180, 83, 9, 0.2);
+    }
+    .badge.agent_active {
+      background: var(--feedback-success-bg);
+      color: var(--feedback-success);
+      border: 1px solid rgba(47, 107, 81, 0.2);
+    }
+    .badge.ai_active {
+      background: var(--brand-pink-soft);
+      color: var(--brand-pink-text);
+      border: 1px solid rgba(157, 23, 77, 0.15);
+    }
+    .conv-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .conv-meta .lang-badge {
+      background: var(--muted);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 10px;
+      color: var(--foreground);
+    }
+    .conv-reason {
+      font-size: 11px;
+      color: var(--feedback-warning);
+      font-weight: 600;
+      background: var(--feedback-warning-bg);
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+    .conv-preview {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
+    /* Chat Pane (Center) */
     .chat-pane {
       display: flex;
       flex-direction: column;
-      background: var(--bg);
+      background: #FAF8F5;
       overflow: hidden;
     }
     .chat-toolbar {
-      background: var(--surface);
+      background: #FFFFFF;
       border-bottom: 1px solid var(--border);
       padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .toolbar-customer {
+      display: flex;
+      flex-direction: column;
+    }
+    .toolbar-name {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--foreground);
+    }
+    .toolbar-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
     .btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
       padding: 8px 14px;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-heading);
       font-size: 12.5px;
-      font-weight: 500;
+      font-weight: 600;
+      border: 1px solid transparent;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn.primary {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+    .btn.primary:hover {
+      background: var(--primary-hover);
     }
     .btn.secondary {
-      background: #E6E1D6;
-      color: var(--text);
+      background: var(--accent);
+      color: var(--primary);
+      border-color: var(--border);
+    }
+    .btn.secondary:hover {
+      background: #D8DFFA;
     }
     .btn.danger {
-      background: #9E2A2B;
-      color: #fff;
+      background: var(--feedback-danger-bg);
+      color: var(--feedback-danger);
+      border-color: rgba(220, 38, 38, 0.2);
     }
+    .btn.danger:hover {
+      background: #FCA5A5;
+      color: #7F1D1D;
+    }
+
     .messages-box {
       flex: 1;
-      padding: 20px;
+      padding: 24px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
     .msg {
-      max-width: 75%;
-      padding: 12px 15px;
-      border-radius: 12px;
+      max-width: 72%;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
       font-size: 13.5px;
       line-height: 1.5;
-      background: var(--surface);
+      position: relative;
+    }
+    .msg.customer {
+      align-self: flex-start;
+      background: #FFFFFF;
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .msg.ai {
+      align-self: flex-end;
+      background: #F4F6FC;
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .msg.human_agent {
+      align-self: flex-end;
+      background: #ECFDF5;
+      color: #064E3B;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      box-shadow: var(--shadow-sm);
+    }
+    .msg.system {
+      align-self: center;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      background: #FFFFFF;
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
       border: 1px solid var(--border);
     }
-    .msg.customer { align-self: flex-start; border-left: 4px solid var(--primary); }
-    .msg.ai { align-self: flex-end; background: #EFECE6; }
-    .msg.human_agent { align-self: flex-end; background: #E3F0E6; border-color: #B4D3BC; }
-    .msg.system { align-self: center; font-size: 11.5px; color: var(--muted); padding: 5px 12px; }
-    .msg-head { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    .msg-head {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
 
     .reply-bar {
-      background: var(--surface);
+      background: #FFFFFF;
       border-top: 1px solid var(--border);
       padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+    }
+    .reply-input-row {
       display: flex;
       gap: 10px;
     }
     .reply-bar input {
       flex: 1;
-      padding: 10px 14px;
+      padding: 11px 16px;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
       font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .reply-bar input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 29, 58, 0.08);
+    }
+    .reply-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
     }
 
+    /* Details Pane (Right) */
     .details-pane {
-      background: var(--surface);
+      background: #FFFFFF;
       border-left: 1px solid var(--border);
-      padding: 18px;
+      padding: 20px;
       overflow-y: auto;
       font-size: 13px;
     }
     .details-pane h3 {
-      margin: 0 0 12px 0;
+      font-family: var(--font-heading);
       font-size: 14px;
+      font-weight: 700;
       color: var(--primary);
       border-bottom: 1px solid var(--border);
       padding-bottom: 8px;
+      margin: 0 0 14px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .kv { margin-bottom: 10px; }
-    .kv label { display: block; font-size: 11px; color: var(--muted); }
-    .kv div { font-weight: 500; word-break: break-all; margin-top: 2px; }
-    .outbox-card {
-      background: #FAF7F2;
+    .kv {
+      margin-bottom: 12px;
+      background: #FAF8F5;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px;
+    }
+    .kv label {
+      display: block;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .kv div {
+      font-weight: 600;
+      word-break: break-all;
+      margin-top: 3px;
+      color: var(--foreground);
+    }
+    .outbox-card {
+      background: #FAF8F5;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
       font-size: 11.5px;
       white-space: pre-wrap;
       margin-top: 8px;
+      color: var(--foreground);
+      line-height: 1.4;
+    }
+    .outbox-card strong {
+      color: var(--primary);
     }
   </style>
 </head>
 <body>
   <header>
-    <div>
-      <h1>YUKIES WIEN · Live-Support & DSGVO Konsole</h1>
-      <div style="font-size:11.5px; opacity:0.8;">Servicezeiten: Täglich 8–18 Uhr (Antwortversprechen: innerhalb von 4 Stunden)</div>
+    <div class="header-brand">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAB3CAYAAAD1oOVhAAAQAElEQVR4Aex9C5ycRZXvOV/3DAkIK89kuidMzyTyCKBgEJLpiQwICL7wFffKKgu4yHX1urrqulyXxwp3L7rcFRG5cBcVhdW9O+i6yIIrKiOZRwIM8oygme6ZMNOTGIkuj2Qe3VX7/1d/1fNNT897JiGE/tX56tSpU6dOnVOvr76vuwN59TOvFli5cmX1ZAKnyn/VIZNZbxZ5mzZtGmaxJcsbj0g0NJ2ZTDVeWIT0atJ9PvFK8KpDKlllDrRkfdO6RH3jj2JGnxFr77Oq3yqCdCYa0j+vbUi/bTLx03DIuphIFCYTt+/mJVPp1YlU+mEr9l9E9B0i8lop/1g53Vj590R9+ovlWT49DYe0FESi4IuKFh3FuETbJ5FEfdPHrUonLLEqNMBIGJdHnn45R1J5JtNTOiRRt+YkVphoaLw2Ud94XaI+/TnOjYevbD6g6CioITKlHFb2SoRkfeMXROyNYdu8wavCdHlEuuPBSLohlWoeN4omNOTSFWsPX7p8zfclJo+IFm4Uq58X0c+oyJcVc2P1rpEnaxuarjpkxamvERETjhag+0RwdmPntKLXRFpMg0eSFVHy0ClLhyT/gXIOJ7icSGeIza8H/b0ATFlSDhb0OmvtlYsLweOJ+tXvxGghDeRXfKDNDGaMi9DSLwNmE+gUUbUfLi9M4eU08OX/EcSjAdzCYVHHOFETCABWjwEEYAFYo4I6kdhdWNR8TwmkuTmOsq+UoGFDfLsMRsZZYvUbIX2iiKNgojxPb6ppSJ+MROBnGCBIRsKSFavfAUOfBxJHhfMkcJBwrRzIZ7GoXYZdxj+BxUhrax6xbwjQvTqMth3tWroifRxacxdgqlAlVrrA9CygUnAOUyvvQiamfFwRxjkkVoh9IsBgCEHFBlh/AlHEDlCIlvaAJEcQBRZE5fxkfeN3BEQENiRATFZEe31Ae9bFgoLcjpYsArDNoAGrHK7O9bSfrFh3K2eXqG8CpgAXaDCH8IKhyGnqLcBZkTc0klMG8hJGrOiHE9iNRUqwMkKEtNeh1N8m6nP/G5q/AcDezfaSjuTYoCp/mcu2X0Fqfuf+9yB+GlAewtnHLq+tXUMHu/yiQ8I5X0XXgVqkiVjgGgIMjUEiElg1zwC2AJSAfPKxtwAVKlkQ9IpEqvGvpCgDEcaOOJC99GNrljfxHuNz0J/2oTHZbiRLgU4SWOlL/Zn2r/DMirBt209ewh17hxQ/RZ4iHl61NhaLY/vb4uRRuAjmRuZibnor4zIgYzVoL6qVC2sOHj6h2ux3DNz1bdAUAAeUjF2UB6KqXoubnw8BhbPWkQ/oXhuCwNqroT3bSqBNCMRBFhq6Cvb5QS7T8dckjDmzUt1J2gRQnQ/sEcijPKUBnbFql69ZAeIpgPLA/O2FwDb297R/u6ura6Snp3Uwl+28UFU4n8ZRgMIQwU0i4Sihk+xtifr0WYI7/VWrVpGPPHsd1KSazrZWzoXiCmD7ELkQiKK/qalC/HR+1wsXOGrZBXbKhKSqMC5FKga71jx2qs527g6blYg1wRvBxZGAaGxQDT64rbvjSRh1jMD+7s4LIObn4A4A7CV0DDQUymTvgS7yg2Sq8UQ6MizPPLDvPUEDG51+qTjbQGB7mRZM3x/atu3xl1wivPhRYo31DglzxkRWrS4Nt71uhLhcq7rSISLeoExqQeWO/sx6Gl1hVL+dpTIOBuP59xiVLJids0CkExA5Zws0fg1k38XjaJT3TgP7tAOdHQVfkHV4PBqTHvLzUNTpQVqUZyrc33NooqHpTDSiGQUogwDUBeK0FRPXDnRvfAQIaeUgVuX3yKsUhi3Us4E2hLNIjIrDZujR1iYjJUgrJtV+q4hUvu7YvPF5tfbCMJfyQrQU8eZyWcwo71GobCljWkhzM2Va8JoQBM49vrYhfS6MdT7gg0vr0ufWpppOXbYsnQBPkdeVa+EoZTnWGyCPMQHomMC8KIH3Uixrxdr/gYyiTIGdxH2YJsRByQXD8veOOtElCMaMnPFsusTTvCIU/keeGImfs6bwVCQ9Hl21qmog2/GAiN4gxdGFaEyoDlNnJuvS7GlhcppRa2sBRzmH1aaamjGX/0UCR9xwbheOCH4EY/0T4LtBIPcYtRsKcXk0WZ9+MJlKf7+mN39VIrX23YmG9JGoiU4hsJ1IwoxSgriM09uNLJtYseYk5PHGjU4kIOkC5VBe3lq5sa+vc6IR4JgDKy8AIT+iMaEo08qLpHYdeKANgFC4QL3DZPRTpIn0/Ta78bej5AoYFnlQdbja/g3iLYAJA2r7cjJ5yqEhA5Vh/WEyjIpbcOZJTd3qY3HSfH1QMF0w+P0407keenL7yemRDeTo4zTI3sz0YVD8TZgi3qtiv4CF9l/FymPYWPwCI+nisAawgBomEHEaRjQaVq58qrhwG/k4qOSnfKdTmEaEuUZkR2xYbmFiMtDhAkeIMzr4KA+RC0WZVlmfw51BUqnmRWrlcBn9uEJo1B9GSZNi9nfPtL9gAvu3KAhRbh0CWmq4x99oq6v9dpkK0IhOh6J09MzW1nwq1bwfHPFVDWKPidhPisgyESEvjU8DUh4bUY089nAvgzw0HnnIS+DIfzNG0jeS9ek7a+rTa1HGBWwyWNbh0QsW43xi+ZuXiQ3+GHTqSQDqAutmWtE5bp5qdLBEdfUwnbGDOIDlEbmg7hrYYxBbaW0tuIbk80P7g+tAEH1AUsRYfckTphNv7e64DQVbwUtj0ThOPtKRYN+G3vrfQPD5jKEYnIHtMXrz0cM6slGKjqDBOApoYPAIRwZplMs0xMAs4oA01ksgD3kJlM/yeej2HhT6Ber44bIVjQ1dxdEt+LAsolIwYgqXIPUaAMtSJtBSB4MYeV40diuJU0Em08Up63chH9QIMXF6o6/I/iIOxyQiIvAgexWwUoWuELQcJHEmoCqXkx8CsL8mNg4w8Ox1DQ2r2HPBRkXWoaqWwlIszuB+FHA8gDqx4X4UgOT0Yxni04UYGOkg1OFGLg18XqGgj9Wkmv4CeQx0GmMHeMZzEJA/BbAulmOMpKufOhG/Pdf9wEQHh8yPAuTb/wwJXlaYFFErh61YcS7bKaxMBgdlBFVxWEn0A3f5yqPkSfFcpr0Dsr4bMtGoIVqKaJDEoF3sdia17hynpZCsa1yDxfnfwEXFyAMUkjBUgEQbQZz5nI4IxAmsCw13RicPAUVLgW31jiHvAViTvpJoWPPTpanVqRIXkMX5+PmIuBkgH8sh6XRh7GwSqOHa4XASp4agUucullc5Yteu5zgaiw4pFA5V9FP2JIVgKkBATxbS2LDJAEXGBBjF8JhhCFSWRwTp4oBy4+I+9hIcrbwfc/CuWmxZbaD3gMwphjowDpD2gTTqANlOZ8ogD4E4gXWxDIHlaExOdywXBeYTSCPfW4JAH082rP4YE3V1a2uQ8VniAMpFNCYg2/6sL9P5BKheL9CcwyrFYGMwzCMSBbaH6cV20aL9iVAxWbx4mA3DM3KSRgHTD+mjhGlh62K5ns6nUfbmkJ29OETHRlbtV5Kp9KXYQf0YOThgw3V88I2mrjQ6OPRXmHi/qaKXo5d/Bqa4EkTO5+vh9n7g7Aw0ZjXwqQINdaAVvQmj5VcjgdkAGfUoZAGVAqqUO1xGs7tHcuhUF2uV+k/E1rO/HuB2s45pp+7aD5ycNxGNBmuE9FHCtLAW53WrsX8AO+fNiZ1qJWlV6LiJnAERmE4FJhK4QPROYGtz2baVuZ6Oj/Rn267pz3T8Q66n/Yu5bPslgDcHw+Z1OHfjM4bz0Cnulak/GmHhbodTFe0SpY+yWO1YeugQb3JFsCsazZgcgy5j7EDhBJaC5/s2b76XncgNf4lrnIZfzMwxoDKeNoahYgLyJcCC1wcTfj/kmHCUhPmTRRwVz4noeQPZtg9gjWqTMR/uzkaBUyDP3eCcu/oz7W9TK38O9m7AvIRCzFwa7s7oNLZ1unJp44q8cMzxicSq0SnLGLf9ZcPLCxzAM/1y4jTSHCXWxJRDm0pTeUebRlnyQ0fh/E/2X2NUvDGXbbsbCdIRRUNLgedAoxDNE8EJ9c01hwyuROf4FHL8xoV1EEAKg4WKhDBZFqEOaKHyBTo7zGN7QnRaURW52AAC8RCYNIP7xznFFkdIEKtmhYSQpxQdtHPnEc5zJcoMkK3d7fdjT/dLFHGVhjGiSQN5OXzRo/RpEwvejFGxBR2DDZqpEURw59/V1ZXHFHcDTMrtNB071hmTqiPcwcVR9n7oce3krJVzoTvXstJTwXIuKJPdsXkj71WKDqnKW1ZaqbGvzVcPjVvsywVOng6uC/Np6BCdNIJ+bu3KxfL2zK2b1z+HO+oq3D1zxFSQMTpdiRAvk93qXrigTIFBt+Sy7e/CNMYjkZfAqSLO4OyMjgc0BuKk0S5xbBqeqjZVfCWKeTOGF188hDY8eIKCWEalR4qfAONUZKjKKUUliuTR6wFmJHjNaHLmWC7T9v9RCnfezvnTWUtodKzL+t5nn23PoYcH6OG+XAUdW2C4KKC2KQKmsVuCwOD5j/4HWOMA2oEdkg4gECeNeW15zb+lp6eVx0jUDewzC9ZarsWHTFDKimov8izbykqBu7DLXcXdWHl6XI2lICriaSHbDKLAfFbFGEAgirYWAYoYAQ09xBCIkwfbysKf9fW00YkixR4+tjJMQyFBk8sbz6hJpT+F45CPpFLNbrfGESVTfPq6Ozfnsm3nqNV1amUD9FBAPASsp2abauEzuWz7WhywbgvF2TCeVhTqoSZm+YiWu1gDAahOMOiwqgmaLOyo1p0Wr3rhheLeeFE+NoIs7xAJPygrajXGs3riIXlmEZSK5bo7O9DaH6EkGipcHwxwBfgYqPBONgDx6/09G24jYQJQOKlQi0fOcEK7NfozyOa0eOuQ5h9I4Li9q6trBPVyzZlAxCi5P9txZ3+2s1FMcCZs8FXALTDVRVI1fEJ/ZgO37qPMM8R4nI4iVlSPcrHQ+MBGgxZR6xxO/oAEHC4OwWV+B0ISgcYC2XmX6VlBV1eDk6Oql1uRrRCCxVpIGwEOkrvPYJqLXmtftvMToE8W7OGp5iXGxO4H02oAZbD8iIo9Hgo/WtOQPplOwRQQR/60Qn9v+/39mc5PAf47O0Tu113+MHBa5SsytR5O3eBf4XMVGh/TqzAmO/OIGylYnt+R5jymfX21XDD98bDLwMUCRNTw6Ftm/2mhEvJsd8eTVSaOeVs4Umgo9mCOmGKscu/w4v3eOY16gmoduRGDvha81Jt6UgaBdf2RWrmrtnbNIRxJ4Jlh4MYgCjMsPoa9+GoPXLAyJFNXOiFMovuI9BUGD/y1I8CBHCFgcEar2CPAwDciHP9cL7296wdymc53iTVnQ7NPw6hXqcplVszZ6Jlv276ptXyUjqsSJ8JvRVnueBAJt5NQscRGR9MpNSYefA1U8iCaSaAtojCTsuN47YoV5+5nRXkUMy7TEaxs33bsMKdx+sGiWt/T1QAAEABJREFUMaV3prjSkwcZ8CkxgJWACxKw+Qu57Mb7BjKd1+cyG/62L9N5LdPTlR7EhOvFZOzUHzaQ87ngT8a4G/Ls84Udr8VUytHM6qgbwTIRwn9iJHNn5+iBNG8noqI4sAs5wgjOImZrliw5m/toJuYBotMB8emLTDakP41BfuwUJThK2EBrjbqX1qbgX9DsuAn44sVE9yAwu+VhqNeBI8ThcKL9jcNGL6FDpH7Rol0HjZLnikWnA+LTk3dE/alLrJUrK3Dz/sCAzqkKkQtcTxTYWbUNa05AvOdCLMYOxBFBoE5luijtXqIHGC5sCE7A7faQ0zuCjSQcOByYFSKc2mbWo0N5c4vCe44qifGBFp8yUnnqRbk7ghFzPBbxHyLBDQLbAtTt4hyOhjWDwDK+XUgueGAFrBNg+QI709TZ60AceaKilu9z0VkE8QyyK17IiBV/KuoyKYUQWDlOhMfq4a6BxN0FuDFM1qVPt6L+20Y2rFpxB3k5Tnf7jcr1MvajSBKwX9CL0JnYTm8EZC14YN1hJe4ehGmvN+nUh/Eu3Ck+CYT5iKTkEHWHWyoVX3nEbTQP5aICXeHddTGBXBGpi4blaGjrz3TcDLoOZNvb0Jn4/hgb6vVU5Fn0wZMS9c/674aTBvKCBl8HYxXr3ihhhUwzLoEVeXwg28FXp5iHpBTv1MMeZKE8FxhbKlFEMHVzhIw6r0jePdea1Jq3QtvTUJtbqBHT6IIjnb8CbnFHHmeMlvArZmAVOowxodgWDbhNBhunXbQS2O4IieVv4tugmF1cbdS7qI84HWFQ+xhySCMAFdBcVLyoVd79KlIlBuAKwlGpVDMXdtKRlN32UQ34HIN1Enh3L1bl5v7ejg081u7C0TqU0f5M4gaxwq+QBUhTTwJxJs88fGUzDklbuK5QDmgLFlgvwUihijfCrsNEamNeqFfQHqE7vcIMtzYEVm0rGMrPtECSxJAtNBDBaHIFi/jCXmvqVrNB54S1sF7eCG7TeBVfNbKbNh1HA1vkA7DGqXCEIzkmcMTUVg0Nvh1UyNido8TyaAfVVg7G5B8qzwkdUhxCuUz7FrHqHyh5XjZINDBngIAj4u1oFLDdEGKBXhxWw5EBoyNl7Vdyv259rnhO5Xq8YNqqQg71Knu8C6oPVi7DiAKf63zk9TkLFqtKJYewHVhbZNPBBzzPTRR1IY16lO5DRPwbFGq7kBNlYi8ESZp44REx44UGvkiHqendYT0c9lzIf5fXwrdB42uXXFOoJ78mQYcZawp3I688kAdt0NfvGD74deWZC5WurV2TRMUc4eVVgCxwgH08fOjGfNIYuzUEmcBbW91IgBE4bYEgjglbyjigAFiRSjUv6sLRtuyGz6CNnwLFkli9DWBYMYgDtd+MPJugFmBh44iKDPRu+BUIDyIF3QM4Aaf5Fr608ZjYQNUIv1pgkE9AtAChuTmOzh0vVAenGgn4ei50cfUwJkAvpIPgp7hGg2XCT1nESdCYxPgCGNeRAERHQ0xBRzwf38U5HMndEAL138vjSOCR/aANCjwwnKpyvp9FgxcbXuR2eGDlLPRcPr1je5jDNjKeLwjcjTbundTomRDq6wFaCughsivQwgMliox2qqhCzvh9RwZZSOkuYwZJDl1UiNeEdKZDdGGiXPeGdqjJV0vZgJ0q+sn+zRv7pqoN9yR0CO9+2Xn40IvO4JRmjej3cCPJzsa2UpThZR7ByXNnf2rPhVymfV1ICvVg3MUnlkQA0Xw3ZYEWCfAuOLiOSIQKEniDgOcydKJG8hYOHRo+X6w5xxh7XF+24x9REetGNFlYF8MDedydu8bzoRcdyhijvzCdX2CYTPjkeZyu0Nvj+79IZ/CFu0r8RlR/XimDtMoNVOU8TCfQ8IwJeLBl6BCHs/BCQy7XtZNH81t7Nvi3MsyUdeL0ehsehkmgp0N5biuzGGk/t0bf25ftZLumFDFrhlb3hgtXO36vhLaN2oo4dnlitWD4cgXUG18TC0WpLIQSwhcM2Pgx+VrcxoHH7eWj5V4+eGiUXPcDHf3Z9acMxoZPzPWsf8tAbxsPIBdczyXLG49QsTxZoP2iRofdXPXZKq3mrYVPO6K/jDF4SNRgcJg9MhemfWSslVWHHZ3GzgE3YSLRyuTl+sEZ3fOhbhUNEObNWxQYORvC/Nf2ovZ19WMX+7OenlaubdE8FCmGciILaX//g3wthYd15KKnyRfAA8l4QVeB6PgQvxrGWkBV5X0g0V7cTAAdE3AYov8OCkxZeZZhQeRHg2M0osppixkGFzqguEMwhsNRcXvMGzVkvRq8BZataGxQqzwMFVi8CoABIcQZx2DsnmobXy9Y+PE4gzYFOjaAZyzBp6yRDSHuFiLgRV6V04HjGK/4eg/wV0PRAoEpCL87yfscdt6owR2OKf+HmK74hJO2dLRi0dErM0ZTxLBLYVQwwldT+AIwHC0sTF4rVk86bBm/oN/CIck8sr8Krter/w1FbrVpEz+70HYiqjz2kfBDm4boaFRkHE2LhLuU325p48MqPs1iLg1PoJADY1XKaQt0flkT0atBkg1rz4AZXg+gjRBh9yvi7asg/rg/2/YYMkhDEliFwMwK5CIJEx9famNCeQkBuMVRNp6vh6MppO+bUTPOrtBya8zFiHzgyPC25UxicA53KzI9bcYOUR6QBVb5RUwKhxOkJATuPid5TO9rMZpYGfNQ13TDK4wPM8oyTOGq8s6wZbSXNzxJnL4yBy36Azs380p2ZGY5RAtG89zxNocYrM3DRkSlIVgQlUPyw9Xcb1M486Jl9zncxuz70Wjcn7njmnE2xWJ+e3jUzjzaDOyVAxkq54RUCOOLwBTiDU8cuQYLGKYtcdtkpPfZoFZLD9K8jaLGGIzFbfFLom7hj2aNx6d0SGDtI0HRBTwGpwSWwQjV05IrtuD01+22SN/XgMbXRH3jWTDPGwAFgAI4tzM2xPEs595nNyd58jEt+9C4kzKiVp7bF8DE42zWAZIwfbApxHiqiax9LtAGYaODvwwRbxsmuVaQh/At3ATSXsTJw/wJYUqH9Pd0PApJv8QosQRIQhJXBAxV/wICUvtM8O3XREM6jVmIPxzK2YO29Hl0SICh8tTSg4d5sjtt41DIVMyKsfddMLEyepjAcrhJlNP4zi3y9s1g7efDhhcdECYQMY1Ibw+/sETbIT11oGGn4rLxuOWWjSeUMY4SgAAMCh8akyq+sAYZXOARvcLDqlXu11VtTX3j+VL84xbBJ3qup0hzen+xYIN/CacrkKYXYNMpGfXZzR3d4GoDMHCEMGbFFmf/F9bVrfWL+3TksexeC11dXSOcFVT0q2Ej/HTl7cL1wuLW4M5tvQ/0gkcBDJaXqWBKAxZ7xLqYtdoSCmMFFM6yHJqHjATmT4p5+8YWOKbxq9BevolP4wOF+XkVd69G++QxfVwHEu2DaPqBRp2Umz2Cwy4YGebvlvDbotEyrFygDp9hC/lw2SNhd1Va05A+Wa18FPVxmmL7o/agA/jc6O+3bm7fJDLzaTwqDHVMHPDQ6jko8s2Qg8fLRKlQHruJlYlU45UgMI3oFRu4c7oRraPdOEsARXfkVWAFkTiu3UPVEv4Eh3tLknyEItcU12CK/DHZRu0tIPBInosWK6EDCEZUr1ra0Hgy8l9xYdWqVXwmJDWp9HVo7KloINtOACoguamKuKjqZfxBUIwO2tbzuLzpXFhoOnyOZyDb0atqOUqoBEcJK6QMLmyFwOr/c4yvoAudwWk7kVr7blXxv9HIdvtWEjdIBKLyQ5z/tfBgFtM3aSDPLAQzY+e4VP66AX+YjKOExekc9iAqcGKiPs33p0h/RQCdsQynuTgC4exAe7Gd0bYxHQdhZz6vn8XIiIWn4CDNPLCCGZXKZdr7AlX/FbK8wb4XIAC+A8ze8mfJev6VHMXOfFFjqZcZBCYuN0Anfj18GHF58DutK4sP9VqYph08lPNPmp6xQyDNxE2cixb/NYYjA6SxwYpek6xvugDDFsrtdU5R15rm4oOnZCr9YSvuTRKSORIYe+C0TdoDuWw7t7mePut4Ng6Rnp7WIQnMRyrVipFiAWLFfhtnPU17o1NW8h+f8eAJneoNuPP16yKnpvIms0P2j9gqvqlYnjer9KwcgnkyyPEXfqx8bIJa2XPgE7l9b3MKnOF+LA1r4dFoAH9EsxptxCDBdXwYCSR4x/ae1q2wSQzZs7QnSoZhlgLcPOl+zzCwchNAASMAxoKYPYc9qg5D5RfJVPrS4kgJa32ZRnBGNZ7sjSRTjSdCRR4V4UgILUACgVMZgTbDVCyKHef/7Muufxx5CM4mbDPw2QcKn31plMTcyZ9T4u/uViPJkUGlgQp7DBUPMOy/jh53K4hzrg8yFiSEzhiurV97glVtRSWHiQi380DHBC7sVVb0of5MB3ecYzLnmpgXAw1XCx7nysNQxo8MoEJneKdYED4Cp2ysXe7+68q9RAEa61fEezR4Z0C/o42Yn0AZfuPY64/kmMCOtytQ4Q8ZzLvuNMiY2maRUN6ZwilnYHB3oTxl+sbQEXQKdyKkrTImeAhH138ira1MM5+NYhnGKL7bg2KaGl6yvPF41Hw/wP+CHvVGslKw7+7PtPE3SiplzolGQ8xJAArTqAGc8uLwfsLXTDlS2BgO96iRSaMTXqui30Fv/FYq1cwTU5YnqIiU66OgLXSwiYami2NG+Z1xrhlcB6gHdWLd1KGE47ZrXS7bcR8zFgJY8XzIRSPWwSmJnSOLq+AUezeEclSADow3+EVgfaSxgX86rCNPJVNrLsEOhXTQ3PE9cULUEE7IfF8SdWtOSqTSPxNrvwHZnKaoG+uGLqAUA9dF0vidx7P7sx089S7mLMCVFc2HWBiPu4wWs31T6070oHfC/v8HgjkqEIkfLeDDxCZuJLChS60GtyRSOf4t0cePPHLAG4WGUZ4jsfDcgDemUShKw6i4SoKgS1TOAIW6sE7aI+oMZAnXxa2BBI3YwNyH9YZp0hcEqMBcBSsEeGBjXMPglM+JKh9cuV0JeNho8sWAk48jCKgURIW/B/K1fMw+ifXl6uSKU90vsHXh6RwZ5gYtheKWuxhzVCTr0w9iVFwRyqVe1Im2oF4huRTtEGtO7+P2trk5jvWG/KXM+UaoxFxlshF0AmMvi2nNZdq+ZwrBSVaUbz+yZ3Gk2JDJx9SBOKFGRf/GFuJP1+Cou6Zu9bEhryKOApKlwPJRKGUAUf4AQbKh6aiahvRlWLfWY1R0oCI+JqAulBknHwBkXDG0cWUe0y+IMWfmejqfFjgjshFhngewz19gQ+ZP2lhJzilbt6zfFBspnIpRcBuyfePZyyaqm8Y4QFU+rUHs8Zr69AYY8oZkKv3RmtSas7FtXg45MCSnIWAirCcKQkcmG9KfRrn/GLSLHrPWPoqHa38H7kbAfgAG6mKJlAFpVaIyEKhpyvV2/jLijDLW+U9OZJT5qomGEn43PJdpvyg0X0sAAAiWSURBVMiK4sBRfg/h3hgFA9NGAXmcPixiQgzZpwD/hFW5WTW4F9vmDTX1TY8lGnKPJ+sbv5NoaLoK8RcQfylRn74D8BAc+ai1wpu2s1CWX09ehJjyNFoXcdDLQ0ysfDee1xP6Mp1P7E5nUJGFdgjrKMFAtu32WF6OV7G8a+coqSplToxgDRCOGgJxbJvt8TDaSstfmbP2SsTXiLV8HYlr1kkQRaeSl4DktEObGjkj19P+oS1b2vhNJw2nqagA9BEhRGkzwidj3q0OoSLPPtuew9bx0iAwx8GofAGPZMvLBEDjRoE6k5+jjwanowgjKE9gfhRAnjI8B4EfxS7qtP7edh6bRAsgC5rKOIjyzBtOxedN2AwEaV93Zzd7Isp0AagHGw50WoE9lMBynP4IHG0E0qMwpUCMig8MZNt5LzIl70IzsEELXUe5fBqLNMYqan/FBIAOUcTlgaOAoyEK5C0HX478UfD0ieLntGD4fcqJ8ncrfU84ZGwDDfY/RQoNXsRGr88B5TRUPmVFHcdyBE5bhCgvcYiQAV72BthTDvG92wSiQwFSHmA0GheRrF+kgysCCVZbte/HSPoSiD8WNb2A3wOGAChuFHEsBE5dYBMuyA9g6f1iYIPTc3VVdSryU4DG8NQJIAALAMnoUDzPESXhB9qMWS9C8u6Jgt1TzSS1WGGvrsQwmMl0Pd+HO+SBTMf3c5mOv8ai+/ZcpnO5aP7EwJrVImYtLHqetXqBqr1YVD8IQWdLEHs9eE/LZdqv6utZvx47JXjNfc3bGxtsYQhkqBAPeE4VEvZstMcdooHh0UolK/DPyGBvoY6MCc6gue6H+vqyG5/IZTa29Wc67x7Idtze373htlx3xz/nsu335Ub/o5b8Trax8oJDxPV+XqzLtDKyo3axd4gjhXx7JGJj90jFvlJYpfIIsUrdOH0RPDtjOmYmwDKCAr0OCR0S4oKMqoYtL8zjnw3InD5s9JwEzLmwKv8tbZwY3Jn79YB57Lke6CAPzJscmt3foxqsQxkIgP8ljphl2HasKHLYkNmvngQ8BogV4z13pVJ7rnZXc2mX5VL+otZOxzi07eTQGv64pzH8q+0hLz8SV9vA+kPMCHnPoLN3yHzpa4S/gThOmlUtjCPOjsDRJGbwIP7Guv/trFFJNsCpS4zH/3TsKH0PYXveIWorTlkqtlJvnq2ZdNu2n+wStZV++bqA9YXH8bOVPa/l9oRDXE/E08DiGmEt//uKvZhp5hFgI8nNU0spi6KwXuhvDFJRQAZsYFPFuMUKn3uIO9oHJ5Z8GQeykB8os5DiK8oO2Oiu8GmgFeXxOhvvma1DrGRdPJ8XFf4qhVT4HFVT13Seo7fyhyxbOF1SD4WusTHgnEWHeXCl5u2yJxxicaOWr61f+/qa+qYWPIj6VNgaOsWDxZT1DOjUz9MYgzT7YI3hj0+WC6Bc1cD+APo8imcrt+DZysW1qaZTlyw5ezF0NYBCCYS/N1kCOq5c3pzSwZxKz6IwnpcnE6mmm4yYR2D091cQEQdNbaCbEbOXRgGk2YdgpPCwWNlRJqEkH/ocb0U/ilX+Gzhi2xDb/6UnEvVNd9U0pG9K1qevqannY+CmP0+k0h9I1jWuTiZP8T92WSZy9smFcgjlEqgZe6AccWRTAx7D/h2elz+JxfVjyGA+Dw6BiuMB4nvcH3RohKfAFrR5C/39D+7A+dUvcG7G+lgX43L51IlrGun1uI88BxvzS6HI58H8v5D+GrT9HjpMh62uegaOujNRt4YPxcgPFkazBxpl9qUrluTcKmyQOWTFqQcl6pvekWho+l48Zp/APHQZihwIYD7aKLzXYEzgHTuNhGx5AsbjSS/1YyM9MG9OULDCp5WUwToZl4MboSAynwDUtYcx9SONwDYcDOR9EgQPh/+ZiCTZZg9s8OxLVyzZYpam1p6WqE//86JC1VPoUf+GKYDfn+DZFBtUXoo6sHE0RDX4fyPGRL/Lx0Z6KC874/TW3vZ74d07MEqqACPA0eEnFUP9ouCL+Nhtz63Rr2PnyAdkkwqbKpMVTcUzo3w44quBGj4GhRMs/1SRTiBQDkcE4yhwZJD+IpzxyVw2eax708PtZjDjRzlnh3tn+lj766ouwrTJX7qeswGh0n4AAzimf/v+r0M8pzAfDmFPoRytqW+8Gtp8HGCw1ycI4oBAGoCOofIEGojlAMpfzDk5l+34WvGlNnCK23oSmW9wu7xcpuM9qPgSuJw/9onNnjiIVEYdqa8Hpj1Qd4Jn5+h+YT+V33vCbGPoNNuipXJQzL2TiyVC+Z8ZpYwQ8XWwMeB1x+lsAB25RUUvymXbzsll27nNDYvsnqgv236r5s0J8MTbUePVYuUeFfH3P9SbenrgKPYANpQQ8W2ycOf/7e1dv9VR53BhpXMo7opCOdebsRnRPowGBeSRQ9kWMXct4BHfMNJ7YITPFnYesLI/2/Yd8Oyx0NfXuasv035Pf7b9iv6e9rdX2apVphBg+2svgFLXAVpwRMwfA30YjXgSaf46HJ/hsB10EL8ifk0u08afamJ7wTL7QKGzL10s6ZWwgbE3gQS9BYszMHG7KD9P74DHfmDxODYYMSv7M+3X43zJPxhyzHvmwl3hKPT0tD7Pty0Hsh135LLtnwP88QAchfhNi2MHnTyyuOoEYwvHSGDSgdXVJhYchbwr5kv3+XBISZf+3vb7rdV3idhHQNylYvmlltvghPOh+DHoge8bwONY9MpB5CvgZRA4uqMg7GDUjbYhEHewefO9Q9s3tb64tWdDT667s6Ovp23j1s3r/X8Iz0tbWOG8CPJCtmXb7t6a6TgZe/M6HRw6cWum/aJteLQKxXmIyPrYOLL7+Zf4ywnoEAL188A0daTuHtgWAunzBvMuEJpReQsHbOc/5CDtDhMRsyFsoMtHem8LXm8fsy2EeW3HfwEAAP//+jGp4AAAAAZJREFUAwDF/vA6mhsTjwAAAABJRU5ErkJggg==" class="header-logo" alt="YUKIES Mascot" />
+      <div>
+        <div class="brand-title">YUKIES <span class="italic-serif">Wien</span></div>
+        <div class="brand-subtitle">
+          <span class="live-dot"></span>
+          <span>Live-Support & DSGVO Konsole · Manufaktur Wien 15</span>
+        </div>
+      </div>
     </div>
-    <div class="agent-selector">
-      <span>Aktive Mitarbeiterin:</span>
-      <select id="active-agent">
-        <option value="Silvia Ragucci">Silvia Ragucci</option>
-        <option value="Barbara Bischof-Fünfrock">Barbara Bischof-Fünfrock</option>
-      </select>
-      <a href="/" style="color:#FAF7F2; margin-left:12px; font-size:12px;">Zurück zum Shop-Simulator &rarr;</a>
+    <div class="header-actions">
+      <div class="agent-pill">
+        <span>Aktive Mitarbeiterin:</span>
+        <select id="active-agent">
+          <option value="Silvia Ragucci">Silvia Ragucci</option>
+          <option value="Barbara Bischof-Fünfrock">Barbara Bischof-Fünfrock</option>
+        </select>
+      </div>
+      <a href="https://yukies.at" target="_blank" rel="noopener noreferrer" class="shop-link">
+        <span>Zu yukies.at</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+        </svg>
+      </a>
     </div>
   </header>
 
   <div class="layout">
+    <!-- Sidebar (Left) -->
     <div class="sidebar">
       <div class="sidebar-header">
-        <span>Kundengespräche</span>
-        <button class="btn secondary" style="padding:3px 8px; font-size:11px;" onclick="loadConversations()">Aktualisieren</button>
+        <div class="sidebar-title-row">
+          <span class="sidebar-title">Kundengespräche</span>
+          <button class="btn secondary" style="padding: 4px 8px; font-size: 11px;" onclick="loadConversations()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <span>Aktualisieren</span>
+          </button>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all" onclick="setFilter('all', this)">Alle</button>
+          <button class="filter-tab" data-filter="waiting" onclick="setFilter('waiting', this)">Wartend</button>
+          <button class="filter-tab" data-filter="active" onclick="setFilter('active', this)">Aktiv</button>
+        </div>
       </div>
-      <div id="conv-list"></div>
+      <div class="conv-list" id="conv-list"></div>
     </div>
 
+    <!-- Chat Pane (Center) -->
     <div class="chat-pane">
       <div class="chat-toolbar" id="chat-toolbar" style="display:none;">
-        <div>
-          <strong id="toolbar-title"></strong>
-          <span id="toolbar-status" style="margin-left:10px; font-size:12px; color:var(--muted);"></span>
+        <div class="toolbar-customer">
+          <span class="toolbar-name" id="toolbar-title"></span>
+          <span class="toolbar-sub" id="toolbar-status"></span>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn" onclick="takeOverConversation()">Gespräch live übernehmen</button>
-          <button class="btn secondary" onclick="returnToAi()">An KI-Assistent zurückgeben</button>
+          <button class="btn primary" onclick="takeOverConversation()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Gespräch live übernehmen</span>
+          </button>
+          <button class="btn secondary" onclick="returnToAi()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            <span>An KI zurückgeben</span>
+          </button>
         </div>
       </div>
 
       <div class="messages-box" id="messages-box">
-        <div style="margin:auto; color:var(--muted);">Wähle links ein Gespräch aus, um den Verlauf zu sehen oder live zu antworten.</div>
+        <div style="margin:auto; text-align:center; color:var(--text-muted); font-size:13.5px;">
+          <p style="font-family:var(--font-heading); font-weight:600; font-size:15px; margin-bottom:6px; color:var(--foreground);">Kein Gespräch ausgewählt</p>
+          <p>Wähle links ein Gespräch aus, um den Verlauf zu sehen oder live als Silvia/Barbara zu antworten.</p>
+        </div>
       </div>
 
       <form class="reply-bar" id="reply-form" style="display:none;" onsubmit="sendAgentMessage(event)">
-        <input type="text" id="agent-input" placeholder="Nachricht eingeben (als Kundin an KI testen oder als Silvia/Barbara antworten)..." autocomplete="off" />
-        <button type="button" class="btn" style="background:#235789;" onclick="simulateCustomerToAi()">Als Kundin an KI senden (KI-Antwort testen)</button>
-        <button type="submit" class="btn">Als Silvia/Barbara live senden</button>
+        <div class="reply-input-row">
+          <input type="text" id="agent-input" placeholder="Nachricht eingeben (als Silvia/Barbara live an die Kundin senden)..." autocomplete="off" />
+        </div>
+        <div class="reply-buttons">
+          <button type="button" class="btn secondary" onclick="simulateCustomerToAi()">Als Kundin an KI testen</button>
+          <button type="submit" class="btn primary">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span>Live senden</span>
+          </button>
+        </div>
       </form>
     </div>
 
+    <!-- Details Pane (Right) -->
     <div class="details-pane" id="details-pane">
-      <h3>Kundenprofil & DSGVO (Österreich)</h3>
-      <div id="user-details" style="color:var(--muted);">Kein Gespräch ausgewählt.</div>
+      <h3>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Kundenprofil & DSGVO</span>
+      </h3>
+      <div id="user-details" style="color:var(--text-muted); font-size:13px;">Kein Gespräch ausgewählt.</div>
     </div>
   </div>
 
   <script>
     let selectedConvId = null;
     let activeUserId = null;
+    let currentFilter = 'all';
+    let allConversations = [];
 
     async function loadConversations() {
-      const res = await fetch('/api/admin/conversations');
-      const data = await res.json();
-      const list = document.getElementById('conv-list');
-      if (!data.conversations.length) {
-        list.innerHTML = '<div style="padding:16px; color:var(--muted); font-size:13px;">Noch keine Gespräche vorhanden.</div>';
+      try {
+        const res = await fetch("/api/admin/conversations");
+        const data = await res.json();
+        allConversations = data.conversations || [];
+        renderConversationList();
+      } catch (err) {
+        console.error("Load conversations error:", err);
+      }
+    }
+
+    function setFilter(filter, el) {
+      currentFilter = filter;
+      document.querySelectorAll(".filter-tab").forEach(t => t.classList.remove("active"));
+      el.classList.add("active");
+      renderConversationList();
+    }
+
+    function renderConversationList() {
+      const list = document.getElementById("conv-list");
+      let filtered = allConversations;
+      if (currentFilter === "waiting") {
+        filtered = allConversations.filter(c => c.status === "waiting_for_agent");
+      } else if (currentFilter === "active") {
+        filtered = allConversations.filter(c => c.status === "agent_active");
+      }
+
+      if (!filtered.length) {
+        list.innerHTML = `<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">Keine Gespräche in dieser Ansicht.</div>`;
         return;
       }
-      list.innerHTML = data.conversations.map(c => `
-        <div class="conv-item ${c.conversation_id === selectedConvId ? 'selected' : ''}" onclick="selectConversation('${c.conversation_id}')">
-          <div class="conv-top">
-            <span class="conv-name">${escapeHtml(c.customer_name)}</span>
-            <span class="badge ${c.status}">${formatStatus(c.status)}</span>
+
+      list.innerHTML = filtered.map(c => {
+        const isWaiting = c.status === "waiting_for_agent";
+        return `
+          <div class="conv-item ${c.conversation_id === selectedConvId ? 'selected' : ''} ${isWaiting ? 'waiting' : ''}" onclick="selectConversation('${c.conversation_id}')">
+            <div class="conv-top">
+              <span class="conv-name">${escapeHtml(c.customer_name)}</span>
+              <span class="badge ${c.status}">${formatStatus(c.status)}</span>
+            </div>
+            <div class="conv-meta">
+              <span class="lang-badge">${c.language.toUpperCase()}</span>
+              <span>${c.customer_email ? escapeHtml(c.customer_email) : 'Gast'}</span>
+              <span>·</span>
+              <span>${formatTime(c.updated_at)}</span>
+            </div>
+            ${c.escalation_reason ? `<div class="conv-reason">Grund: ${escapeHtml(c.escalation_reason)}</div>` : ''}
+            <div class="conv-preview">${escapeHtml(c.last_message_preview)}</div>
           </div>
-          <div class="conv-meta">${c.customer_email ? escapeHtml(c.customer_email) + ' · ' : 'Gast ohne E-Mail · '}${c.language.toUpperCase()} (${c.address_form})</div>
-          ${c.escalation_reason ? `<div style="font-size:11px; color:#8A4B08; font-weight:600; margin-bottom:4px;">Grund: ${escapeHtml(c.escalation_reason)}</div>` : ''}
-          <div class="conv-preview">${escapeHtml(c.last_message_preview)}</div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function formatStatus(st) {
-      if (st === 'waiting_for_agent') return 'Übergabe angefordert';
+      if (st === 'waiting_for_agent') return 'Wartend auf Silvia/Barbara';
       if (st === 'agent_active') return 'Live übernommen';
-      return 'KI Aktiv';
+      return 'KI-Beraterin';
+    }
+
+    function formatTime(isoStr) {
+      if (!isoStr) return '';
+      const d = new Date(isoStr);
+      return d.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     }
 
     async function selectConversation(convId) {
       selectedConvId = convId;
-      loadConversations();
+      renderConversationList();
       const res = await fetch(`/api/admin/conversations/${convId}`);
       if (!res.ok) return;
       const d = await res.json();
@@ -300,7 +719,10 @@
       const msgBox = document.getElementById('messages-box');
       msgBox.innerHTML = d.messages.map(m => `
         <div class="msg ${m.sender_type}">
-          <div class="msg-head">${escapeHtml(m.sender_name)} · ${new Date(m.created_at).toLocaleTimeString('de-AT')}</div>
+          <div class="msg-head">
+            <span>${escapeHtml(m.sender_name)}</span>
+            <span>${new Date(m.created_at).toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
           <div>${escapeHtml(m.content)}</div>
         </div>
       `).join('');
@@ -308,17 +730,35 @@
 
       const u = d.user;
       document.getElementById('user-details').innerHTML = `
-        <div class="kv"><label>Persistente User-ID (DSGVO / DSG)</label><div style="font-family:monospace;">${u.user_id}</div></div>
-        <div class="kv"><label>Name</label><div>${escapeHtml(u.full_name)}</div></div>
-        <div class="kv"><label>E-Mail</label><div>${u.email ? escapeHtml(u.email) : 'Gast ohne E-Mail'}</div></div>
-        <div class="kv"><label>Shopify-Status</label><div>${u.is_logged_in_shopify ? 'Eingeloggtes Kundenkonto (' + escapeHtml(u.shopify_customer_id) + ')' : 'Gast (Pre-Chat Formular + Einwilligung)'}</div></div>
-        <div class="kv"><label>DSGVO-Einwilligungen</label><div>${u.consents.length} protokolliert (${u.consents[0]?.auth_source || ''})</div></div>
-        <div style="display:flex; gap:8px; margin:14px 0;">
-          <a class="btn secondary" style="text-decoration:none; font-size:11.5px;" href="/api/admin/gdpr/export/${u.user_id}" target="_blank">DSGVO Datenexport (JSON)</a>
-          <button class="btn danger" style="font-size:11.5px;" onclick="eraseUserGdpr('${u.user_id}')">DSGVO Löschung</button>
+        <div class="kv">
+          <label>Persistente User-ID (DSGVO / DSG)</label>
+          <div style="font-family:monospace; font-size:11.5px;">${u.user_id}</div>
         </div>
-        <h3>E-Mail-Benachrichtigungen (office@bacciorganics.com)</h3>
-        ${d.outbox_notifications.length ? d.outbox_notifications.map(n => `<div class="outbox-card"><strong>${escapeHtml(n.subject)}</strong>\n${escapeHtml(n.body)}</div>`).join('') : '<div style="color:var(--muted); font-size:12px;">Keine E-Mail-Übergabe in diesem Gespräch.</div>'}
+        <div class="kv">
+          <label>Name</label>
+          <div>${escapeHtml(u.full_name)}</div>
+        </div>
+        <div class="kv">
+          <label>E-Mail</label>
+          <div>${u.email ? escapeHtml(u.email) : 'Gast ohne E-Mail'}</div>
+        </div>
+        <div class="kv">
+          <label>Shopify-Status</label>
+          <div>${u.is_logged_in_shopify ? 'Eingeloggte Kundin (' + escapeHtml(u.shopify_customer_id) + ')' : 'Gast (Einwilligung erteilt)'}</div>
+        </div>
+        <div class="kv">
+          <label>Aufbewahrungsfrist (DSGVO Art. 17)</label>
+          <div style="color:var(--feedback-success);">180 Tage (automatische Löschung aktiv)</div>
+        </div>
+        <div style="display:flex; gap:8px; margin:16px 0;">
+          <a class="btn secondary" style="text-decoration:none; font-size:11.5px; flex:1; justify-content:center;" href="/api/admin/gdpr/export/${u.user_id}" target="_blank">DSGVO Export (JSON)</a>
+          <button class="btn danger" style="font-size:11.5px;" onclick="eraseUserGdpr('${u.user_id}')">Löschen</button>
+        </div>
+        <h3 style="margin-top:20px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span>E-Mail-Benachrichtigungen</span>
+        </h3>
+        ${d.outbox_notifications && d.outbox_notifications.length ? d.outbox_notifications.map(n => `<div class="outbox-card"><strong>${escapeHtml(n.subject)}</strong>\n${escapeHtml(n.body)}</div>`).join('') : '<div style="color:var(--text-muted); font-size:12px;">Keine E-Mail-Übergabe in diesem Gespräch.</div>'}
       `;
     }
 
@@ -361,7 +801,6 @@
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
-      // Ensure AI is active before sending customer message
       await fetch(`/api/admin/conversations/${selectedConvId}/return-to-ai`, { method: 'POST' });
       await fetch('/api/chat/message', {
         method: 'POST',
@@ -379,7 +818,7 @@
       if (!confirm('Alle personenbezogenen Daten und Chatverläufe dieser User-ID gemäß Art. 17 DSGVO / DSG unwiderruflich löschen?')) return;
       await fetch(`/api/admin/gdpr/erase/${userId}`, { method: 'DELETE' });
       selectedConvId = null;
-      document.getElementById('messages-box').innerHTML = '<div style="margin:auto; color:var(--muted);">Benutzerdaten wurden DSGVO-konform gelöscht.</div>';
+      document.getElementById('messages-box').innerHTML = '<div style="margin:auto; color:var(--text-muted);">Benutzerdaten wurden DSGVO-konform gelöscht.</div>';
       document.getElementById('user-details').innerHTML = 'Gelöscht.';
       loadConversations();
     }
