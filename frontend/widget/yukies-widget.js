@@ -949,13 +949,14 @@ class YukiesChatWidget extends HTMLElement {
         }
         .yukies-brand-title {
           font-family: var(--font-heading);
-          font-size: 18px;
+          font-size: 17px;
           font-weight: 700;
           letter-spacing: -0.01em;
           color: var(--foreground);
           display: flex;
           align-items: baseline;
           gap: 4px;
+          white-space: nowrap;
         }
         .yukies-brand-sub {
           margin-top: 2px;
@@ -1192,19 +1193,20 @@ class YukiesChatWidget extends HTMLElement {
           box-shadow: 0 4px 12px rgba(13, 29, 58, 0.06);
         }
         .yukies-product-thumb {
-          width: 52px;
-          height: 52px;
+          width: 56px;
+          height: 56px;
           border-radius: 10px;
-          background: var(--muted);
-          object-fit: cover;
+          background: #FFFFFF;
+          object-fit: contain;
+          padding: 3px;
           flex-shrink: 0;
           border: 1px solid var(--border);
         }
         .yukies-product-thumb-placeholder {
-          width: 52px;
-          height: 52px;
+          width: 56px;
+          height: 56px;
           border-radius: 10px;
-          background: var(--muted);
+          background: #FFFFFF;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1236,13 +1238,16 @@ class YukiesChatWidget extends HTMLElement {
         }
         .yukies-product-title {
           font-family: var(--font-heading);
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 600;
           color: var(--foreground);
           margin-top: 1px;
-          white-space: nowrap;
+          white-space: normal;
+          line-height: 1.25;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
           overflow: hidden;
-          text-overflow: ellipsis;
         }
         .yukies-product-size {
           font-size: 11px;
@@ -1486,7 +1491,7 @@ class YukiesChatWidget extends HTMLElement {
           <div class="yukies-header-brand">
             <img src="${YUKIES_MASCOT_DATA_URI}" class="yukies-brand-avatar" alt="YUKIES Mascot" />
             <div>
-              <div class="yukies-brand-title">${this.escapeHtml(t.brandName)} <span class="yukies-italic">Wien</span></div>
+              <div class="yukies-brand-title">YUKIES <span class="yukies-italic">${this.lang === "de" ? "Wien" : (this.lang === "en" ? "Vienna" : "Wien")}</span></div>
               <div class="yukies-brand-sub">${this.renderStatusBadge(t)}</div>
             </div>
           </div>
